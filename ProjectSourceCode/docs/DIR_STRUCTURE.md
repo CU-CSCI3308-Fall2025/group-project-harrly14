@@ -45,4 +45,4 @@ parking-app/
 │
 └── docs/
     ├── SETUP.md               # How to run the project
-    └──  API.md                # API endpoint documentation
+    └── API.md                 # API endpoint documentation
