@@ -88,7 +88,7 @@ The application is deployed and accessible at:
 
 ### Project Structure
 
-See the repository for detailed file organization. An initial directory structure can be found at `/ProjectSourceCode/docs/DIR_STRUCTURE.md`Key directories:
+See the repository for detailed file organization. An initial directory structure can be found at `/ProjectSourceCode/docs/DIR_STRUCTURE.md`. Key directories:
 - `/ProjectSourceCode/src` - Application source code
 - `/ProjectSourceCode/src/public` - Static assets (CSS, JS, images)
 - `/ProjectSourceCode/src/views` - Handlebars templates
