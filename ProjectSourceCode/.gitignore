@@ -1,0 +1,12 @@
+.env
+node_modules/
+
+# OS files
+.DS_Store
+.DS_Store?
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+
+.vscode/
