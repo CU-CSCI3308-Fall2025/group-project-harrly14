@@ -9,7 +9,7 @@ services:
       - ./src/init_data:/docker-entrypoint-initdb.d
   web:
     image: node:lts
-    user: 'node'
+    # user: 'node'
     working_dir: /repository
     env_file: .env
     environment:
@@ -20,6 +20,8 @@ services:
       - '3000:3000'
     volumes:
       - ./:/repository
-    command: 'npm start'
+      - /repository/node_modules
+    command: sh -c "npm install && npm start"
+
 volumes:
   group-project:
