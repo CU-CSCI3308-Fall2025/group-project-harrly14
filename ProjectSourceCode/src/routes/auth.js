@@ -8,6 +8,7 @@ router.get('/', (req, res) => res.redirect('/home'));
 router.get('/home', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
+  const user = req.session.user;
   delete req.session.message;
   delete req.session.error;
   res.render('pages/home', { message, error });
@@ -42,7 +43,7 @@ router.post('/register', async (req, res) => {
     const hash = await bcrypt.hash(req.body.password, 10);
     const username = req.body.username;
 
-    const existsQuery = `SELECT * FROM users WHERE username = $1`;
+    const existsQuery = `SELECT 1 FROM users WHERE username = $1 LIMIT 1`;
     const isExistingUser = await db.oneOrNone(existsQuery, [username]);
     if (isExistingUser) {
       req.session.message = 'Username taken. Try again.';
@@ -68,7 +69,7 @@ router.post('/login', async (req, res) => {
     }
 
     const username = req.body.username;
-    const findUserQuery = `SELECT * FROM users WHERE username = $1`;
+    const findUserQuery = `SELECT username,password FROM users WHERE username = $1`;
     let user = await db.oneOrNone(findUserQuery, [username]);
 
     if (!user) {
@@ -87,7 +88,8 @@ router.post('/login', async (req, res) => {
     req.session.user = user.username;
     req.session.save(() => res.redirect('/home'));
   } catch (err) {
-    req.session.message = `Login error: ${err}. Please try again. `;
+    console.log('Login error:', err)
+    req.session.message = 'An error occurred during login. Please try again.';
     req.session.error = true;
     return res.redirect('/login');
   }
