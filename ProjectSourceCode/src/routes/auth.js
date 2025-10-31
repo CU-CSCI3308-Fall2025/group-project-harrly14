@@ -87,7 +87,7 @@ router.post('/login', async (req, res) => {
     req.session.user = user.username;
     req.session.save(() => res.redirect('/home'));
   } catch (err) {
-    console.log('Login error:', err)
+    console.log('Login error:', err);
     req.session.message = 'An error occurred during login. Please try again.';
     req.session.error = true;
     return res.redirect('/login');
