@@ -8,7 +8,6 @@ router.get('/', (req, res) => res.redirect('/home'));
 router.get('/home', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
-  const user = req.session.user;
   delete req.session.message;
   delete req.session.error;
   res.render('pages/home', { message, error });
