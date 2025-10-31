@@ -24,8 +24,6 @@ Before running this application, ensure you have the following installed:
 
 - [Docker Desktop](https://www.docker.com/products/docker-desktop) (version 20.10 or higher)
 - [Docker Compose](https://docs.docker.com/compose/install/) (version 2.0 or higher)
-- [Git](https://git-scm.com/downloads)
-- A text editor (VS Code, Sublime Text, etc.)
 
 ## How to Run the Application Locally
 
@@ -44,9 +42,14 @@ Before running this application, ensure you have the following installed:
    - Database credentials
    - Session secret (generate a random string)
 
-3. **Start the application with Docker**
+3. **Build the image and start the app (recommended)**
+
+- Dependencies are installed at image build time (fast, consistent startups).
+- The container runs non-root by default using the host's UID/GID (no manual chown required).
+- `node_modules` is kept inside the container (anonymous volume) so host bind-mounts don't overwrite the image-installed dependencies.
+
 ```bash
-   docker-compose up
+docker-compose up --build
 ```
 
 4. **Access the application**
