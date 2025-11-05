@@ -4,7 +4,7 @@ WORKDIR /repository
 
 COPY package*.json ./
 
-RUN npm ci --silent
+RUN npm ci
 
 COPY . .
 
