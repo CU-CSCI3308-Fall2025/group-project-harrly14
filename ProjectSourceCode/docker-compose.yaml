@@ -25,7 +25,7 @@ services:
     volumes:
       - ./:/repository:delegated
       - /repository/node_modules
-    command: 'npm run testandrun'
+    command: sh -c "npm run prestart && if [ \"$$RUN_TESTS\" = \"true\" ]; then npm test; fi && npm start"
 
 volumes:
   group-project:
