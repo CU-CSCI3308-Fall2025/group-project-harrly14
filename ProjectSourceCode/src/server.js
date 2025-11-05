@@ -41,9 +41,16 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', authRoutes);
 
+// Welcome route for testing
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
 app.use(auth);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, '0.0.0.0', () => {
+const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
+
+module.exports = server;
