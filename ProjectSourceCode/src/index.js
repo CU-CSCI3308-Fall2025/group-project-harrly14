@@ -46,6 +46,32 @@ app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
+app.get('/', (req, res) => {
+  res.render('ProjectSourceCode\src\views\pages\register');
+});
+
+app.post('/register', async (req, res) => {
+    try {
+      const hash = await bcrypt.hash(req.body.password, 10);
+      const username = req.body.username;
+      const email = req.body.email;
+      var query = `INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hash}')`;
+      
+      await db.none(query)
+      res.json({status: 200, message: 'Success'});
+      res.redirect('/login');
+    
+    } catch(err) {
+      console.log(err);
+
+      if (err.code === '23505') {
+        res.render('ProjectSourceCode\src\views\pages\register', { message: 'Username already exists. Please choose another one.' });
+      } else {
+        res.render('ProjectSourceCode\src\views\pages\register', { message: 'Error registering user. Please try again.' });
+      }
+    };
+});
+
 app.use(auth);
 
 const PORT = process.env.PORT || 3000;
