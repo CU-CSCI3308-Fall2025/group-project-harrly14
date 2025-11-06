@@ -8,18 +8,24 @@ services:
       - group-project:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
   web:
-    image: node:lts
-    user: 'node'
+    build:
+      context: .
+      dockerfile: Dockerfile
     working_dir: /repository
     env_file: .env
     environment:
       - NODE_ENV=development
+      - HOST_UID=${UID:-1000}
+      - HOST_GID=${GID:-1000}
+    user: "${UID:-1000}:${GID:-1000}"
     depends_on:
       - db
     ports:
       - '3000:3000'
     volumes:
-      - ./:/repository
-    command: 'npm start'
+      - ./:/repository:delegated
+      - /repository/node_modules
+    command: sh -c "npm run prestart && if [ \"$$RUN_TESTS\" = \"true\" ]; then npm test; fi && npm start"
+
 volumes:
   group-project:
