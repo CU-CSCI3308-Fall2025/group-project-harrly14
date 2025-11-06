@@ -1,14 +1,3 @@
-DROP TABLE IF EXISTS reports CASCADE;
-CREATE TABLE IF NOT EXISTS reports (
-  report_id SERIAL PRIMARY KEY NOT NULL,
-  user_id INT NOT NULL,
-  lot_num INT NOT NULL,
-  report_type VARCHAR(100) NOT NULL,
-  time timestamptz NOT NULL,
-  foreign key (user_id) references users(user_id),
-  foreign key (lot_num) references parking_lots(lot_id)
-);
-
 DROP TABLE IF EXISTS users CASCADE;
 CREATE TABLE IF NOT EXISTS users (
   user_id SERIAL PRIMARY KEY NOT NULL,
@@ -24,6 +13,17 @@ CREATE TABLE IF NOT EXISTS parking_lots (
   lot_location VARCHAR(100) NOT NULL,
   capacity INT NOT NULL,
   current_occupancy INT DEFAULT 0
+);
+
+DROP TABLE IF EXISTS reports CASCADE;
+CREATE TABLE IF NOT EXISTS reports (
+  report_id SERIAL PRIMARY KEY NOT NULL,
+  user_id INT NOT NULL,
+  lot_num INT NOT NULL,
+  report_type VARCHAR(100) NOT NULL,
+  time timestamptz NOT NULL,
+  foreign key (user_id) references users(user_id),
+  foreign key (lot_num) references parking_lots(lot_id)
 );
 
 insert into parking_lots (lot_location, capacity, current_occupancy) values
