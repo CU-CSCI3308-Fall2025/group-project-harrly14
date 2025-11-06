@@ -42,6 +42,8 @@ Before running this application, ensure you have the following installed:
    - Database credentials
    - Session secret (generate a random string)
 
+   By default, the `RUN_TESTS` variable in the .env example is false. If you want to run tests when starting the docker containers, change the `RUN_TESTS` variable in `.env` to `true`.
+
 3. **Build the image and start the app (recommended)**
 
 - Dependencies are installed at image build time (fast, consistent startups).
