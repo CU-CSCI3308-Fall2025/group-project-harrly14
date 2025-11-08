@@ -1,7 +1,7 @@
 const express = require('express');
+const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
-const router = express.Router();
 
 router.get('/', (req, res) => res.redirect('/home'));
 
@@ -33,29 +33,16 @@ router.get('/login', (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    if (!req.body.username || !req.body.password) {
-      req.session.message = 'Provide a username and password.';
-      req.session.error = true;
-      return res.redirect('/register');
-    }
-
-    const hash = await bcrypt.hash(req.body.password, 10);
-    const username = req.body.username;
-
-    const existsQuery = `SELECT 1 FROM users WHERE username = $1 LIMIT 1`;
-    const isExistingUser = await db.oneOrNone(existsQuery, [username]);
-    if (isExistingUser) {
-      req.session.message = 'Username taken. Try again.';
-      req.session.error = true;
-      return res.redirect('/register');
-    }
-
-    const query = `INSERT INTO users (username, password) VALUES ($1, $2)`;
-    await db.none(query, [username, hash]);
-    return res.redirect('/login');
+    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    await db.none('INSERT INTO users (username, email, password) VALUES ($1, $2, $3)', [req.body.username, req.body.email, hashedPassword]);
+    res.json({ message: 'Success' });
   } catch (err) {
-    console.error('Register error: ', err);
-    return res.redirect('/register');
+    console.error(err);
+    if (err.code === '23505') {
+      res.status(400).json({ message: 'Username already exists' });
+    } else {
+      res.status(500).json({ message: 'Error registering user' });
+    }
   }
 });
 

@@ -1,6 +1,6 @@
 // ********************** Initialize server **********************************
 
-const server = require('ProjectSourceCode\src\index.js'); //TODO: Make sure the path to your index.js is correctly added
+const server = require('../index.js');
 
 // ********************** Import Libraries ***********************************
 
@@ -33,14 +33,31 @@ describe('Testing Add User API', () => {
   it('positive : /register', done => {
     chai
       .request(server)
-      .post('/add_user')
-      .send({username: lllllkjhg, email: 'Johndoe@gmail.com', password: 'asdfghjkl'})
+      .post('/register')
+      .send({username: 'testusername', email: 'Johndoe@gmail.com', password: 'asdfghjkl'})
       .end((err, res) => {
         expect(res).to.have.status(200);
         expect(res.body.message).to.equals('Success');
         done();
       });
   });
-});
 
+  it('negative: /register - duplicate username', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({ username: 'duplicateuser', email: 'dup@example.com', password: 'password123' })
+      .end(() => {
+        chai
+          .request(server)
+          .post('/register')
+          .send({ username: 'duplicateuser', email: 'dup2@example.com', password: 'password123' })
+          .end((err, res) => {
+            expect(res).to.have.status(400);
+            expect(res.body.message).to.equals('Username already exists');
+            done();
+          });
+      });
+  });
+});
 // ********************************************************************************
