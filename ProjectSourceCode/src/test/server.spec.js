@@ -10,6 +10,9 @@ chai.should();
 chai.use(chaiHttp);
 const {assert, expect} = chai;
 
+//added: import database connection
+const db = require('../config/database');
+
 // ********************** DEFAULT WELCOME TESTCASE ****************************
 
 describe('Server!', () => {
@@ -30,6 +33,14 @@ describe('Server!', () => {
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
 describe('Testing Add User API', () => {
+  before(async function() {
+    try {
+      await db.none(`DELETE FROM users WHERE username IN ('testusername', 'duplicateuser')`);
+      console.log('Test users cleaned up successfully');
+    } catch (err) {
+      console.log('Cleanup before tests:', err.message);
+    }
+  });
   it('positive : /register', done => {
     chai
       .request(server)
