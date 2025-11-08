@@ -47,7 +47,7 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  res.render('ProjectSourceCode\src\views\pages\register');
+  res.render('pages/register');
 });
 
 // routes/auth handles registration
