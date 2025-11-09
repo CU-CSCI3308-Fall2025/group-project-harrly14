@@ -3,16 +3,6 @@ const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
 
-router.get('/', (req, res) => res.redirect('/home'));
-
-router.get('/home', (req, res) => {
-  const message = req.session.message;
-  const error = req.session.error;
-  delete req.session.message;
-  delete req.session.error;
-  res.render('pages/home', { message, error });
-});
-
 router.get('/register', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;

@@ -33,6 +33,7 @@ describe('Server!', () => {
 // *********************** TODO: WRITE 2 UNIT TESTCASES **************************
 
 describe('Testing Add User API', () => {
+  //cleanup test cases
   before(async function() {
     try {
       await db.none(`DELETE FROM users WHERE username IN ('testusername', 'duplicateuser')`);
@@ -41,6 +42,7 @@ describe('Testing Add User API', () => {
       console.log('Cleanup before tests:', err.message);
     }
   });
+  //positive test case
   it('positive : /register', done => {
     chai
       .request(server)
@@ -52,7 +54,7 @@ describe('Testing Add User API', () => {
         done();
       });
   });
-
+  //negative test case
   it('negative: /register - duplicate username', done => {
     chai
       .request(server)

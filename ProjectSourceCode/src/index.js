@@ -6,6 +6,7 @@ const handlebars = require('express-handlebars');
 const session = require('express-session');
 
 const authRoutes = require('./routes/auth');
+const pageRoutes = require('./routes/pages')
 const auth = require('./middleware/auth');
 
 const hbs = handlebars.create({
@@ -39,41 +40,21 @@ app.use(session({
 }));
 app.use(express.static(path.join(__dirname, 'public')));
 
+// public auth routes
 app.use('/', authRoutes);
+app.use('/', pageRoutes);
 
 // Welcome route for testing
 app.get('/welcome', (req, res) => {
   res.json({status: 'success', message: 'Welcome!'});
 });
 
-app.get('/', (req, res) => {
-  res.render('pages/register');
-});
+// protected routes mounted after this line
+app.use(auth)
+// example routes that could be protected
+// app.use('api/user', require('./routes/user'));
+// app.use('api/reports', require('./routes/reports '));
 
-// routes/auth handles registration
-// app.post('/register', async (req, res) => {
-//     try {
-//       const hash = await bcrypt.hash(req.body.password, 10);
-//       const username = req.body.username;
-//       const email = req.body.email;
-//       var query = `INSERT INTO users (username, email, password) VALUES ('${username}', '${email}', '${hash}')`;
-      
-//       await db.none(query)
-//       res.json({status: 200, message: 'Success'});
-//       res.redirect('/login');
-    
-//     } catch(err) {
-//       console.log(err);
-
-//       if (err.code === '23505') {
-//         res.render('ProjectSourceCode\src\views\pages\register', { message: 'Username already exists. Please choose another one.' });
-//       } else {
-//         res.render('ProjectSourceCode\src\views\pages\register', { message: 'Error registering user. Please try again.' });
-//       }
-//     };
-// });
-
-app.use(auth);
 
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, '0.0.0.0', () => {
