@@ -41,7 +41,7 @@ ProjectSourceCode/
 │   │   └── images/
 │   │       └── ...
 │   │
-│   └── server.js              # Main Express server file
+│   └── index.js              # Main Express server file
 │
 └── docs/
     ├── SETUP.md               # How to run the project

@@ -2,12 +2,12 @@
   "name": "parking-app",
   "version": "1.0.0",
   "description": "Parking application",
-  "main": "src/server.js",
+  "main": "src/index.js",
   "scripts": {
     "prestart": "npm install",
-    "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
-    "test": "mocha",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "test": "mocha src/test",
     "testandrun": "npm run prestart && npm run test && npm start"
   },
   "dependencies": {

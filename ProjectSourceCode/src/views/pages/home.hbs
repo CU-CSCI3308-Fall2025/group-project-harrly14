@@ -2,7 +2,7 @@
 <html>
 <head>
   <title>University of Colorado Boulder Parking Finder</title>
-  <link rel="stylesheet" href="ProjectSourceCode\src\views\css\styles.css">
+  <link rel="stylesheet" href="../css/styles.css">
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 </head>
 <body>
@@ -18,9 +18,113 @@
   </div>
   <div id="error-display" style="display: none;"></div>
   <script>(g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
-    key: "YOUR_API_KEY",
+    key: "{{googleApiKey}}",
     v: "weekly"
   });</script>
-  <script src="script.js"></script>
+  <script>
+    let map;
+    let infoWindow;
+    const markers = [];
+
+    async function initMap() {
+      const { Map, InfoWindow } = await google.maps.importLibrary("maps");
+      const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
+      const { Place } = await google.maps.importLibrary("places");
+
+      const universityOfColorado = { lat: 40.0076, lng: -105.2659 };
+
+      map = new Map(document.getElementById("map"), {
+        center: universityOfColorado,
+        zoom: 15,
+        mapId: "DEMO_MAP_ID",
+        gestureHandling: "greedy",
+      });
+
+      infoWindow = new InfoWindow();
+
+      await findParking(Place, AdvancedMarkerElement);
+
+      const toggleButton = document.getElementById('toggle-sidebar-btn');
+      const sidebar = document.getElementById('sidebar');
+      toggleButton.addEventListener('click', () => {
+        sidebar.classList.toggle('hidden');
+        if (sidebar.classList.contains('hidden')) {
+            toggleButton.textContent = 'Show List';
+        } else {
+            toggleButton.textContent = 'Hide List';
+        }
+      });
+    }
+
+    async function findParking(Place, AdvancedMarkerElement) {
+      const request = {
+        textQuery: "parking at University of Colorado Boulder",
+        fields: ["displayName", "location", "formattedAddress", "businessStatus"],
+        locationBias: map.getCenter(),
+      };
+
+      try {
+        const { places } = await Place.searchByText(request);
+
+        if (places.length) {
+          const bounds = new google.maps.LatLngBounds();
+          const placeList = document.getElementById("place-list");
+          placeList.innerHTML = ''; // Clear previous results
+
+          places.forEach((place) => {
+            const marker = new AdvancedMarkerElement({
+              map,
+              position: place.location,
+              title: place.displayName,
+            });
+
+            markers.push(marker);
+
+            const listItem = document.createElement("div");
+            listItem.className = "place-item";
+            listItem.innerHTML = `
+              <h3>${place.displayName}</h3>
+              <p>${place.formattedAddress}</p>
+            `;
+            placeList.appendChild(listItem);
+
+            const openInfoWindow = () => {
+              infoWindow.close();
+              const content = document.createElement('div');
+              content.className = 'info-window-content';
+              content.innerHTML = `
+                <h3>${place.displayName}</h3>
+                <p><strong>Address:</strong> ${place.formattedAddress}</p>
+                <p><strong>Status:</strong> ${place.businessStatus || 'N/A'}</p>
+                <p><strong>Availability:</strong> Data not available</p>
+              `;
+              infoWindow.setContent(content);
+              infoWindow.open(map, marker);
+            };
+
+            marker.addListener("click", openInfoWindow);
+            listItem.addEventListener("click", openInfoWindow);
+
+            bounds.extend(place.location);
+          });
+
+          map.fitBounds(bounds);
+        } else {
+            showError("No parking locations found.");
+        }
+      } catch (error) {
+        console.error("Place search failed:", error);
+        showError("Failed to search for parking locations.");
+      }
+    }
+
+    function showError(message) {
+        const errorDiv = document.getElementById('error-display');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+    }
+
+    window.onload = initMap;
+  </script>
 </body>
 </html>
