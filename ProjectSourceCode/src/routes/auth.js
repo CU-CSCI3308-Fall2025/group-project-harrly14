@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
+// Comment this out if you want to test without login
+const isAuthenticated = require('../middleware/auth');
 
 router.get('/register', (req, res) => {
   const message = req.session.message;
@@ -70,6 +72,11 @@ router.post('/login', async (req, res) => {
     req.session.error = true;
     return res.redirect('/login');
   }
+});
+
+// Protected home route. Comment this out if you want to test without login
+router.get('/home', isAuthenticated, (req, res) => {
+  res.render('pages/home', { username: req.session.user });
 });
 
 router.get('/logout', (req, res) => {
