@@ -67,24 +67,26 @@ const db = require('./config/database');
 // shoutout to computer systems for teaching me the basis of this stuff
 function gracefulShutdown(signal) {
   console.log(`Received ${signal}, starting graceful shutdown...`);
+
+  const shutdownTimeout = setTimeout(() => {
+    console.error('Graceful shutdown timed out, forcing exit');
+    process.exit(1);
+  }, 10000);
+
   server.close(() => {
-    if (db && db.$pgp && typeof db.$pgp.end == 'function') {
+    clearTimeout(shutdownTimeout);
+    if (db && db.$pgp && typeof db.$pgp.end === 'function') {
       db.$pgp.end();
     }
     process.exit(0);
   });
-
-  setTimeout(() => {
-    console.error('Graceful shutdown timed out, forcing exit');
-    process.exit(1);
-  }, 10000);
 }
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('uncaughtException', (err) => {
   console.error('Uncaught exception:', err);
-  process.exit(1);
+  gracefulShutdown('UncaughtException');
 });
 
 module.exports = server;
