@@ -1,14 +1,16 @@
 require('dotenv').config();
 const express = require('express');
-const app = express();
 const path = require('path');
 const handlebars = require('express-handlebars');
 const session = require('express-session');
 
 const authRoutes = require('./routes/auth');
-const pageRoutes = require('./routes/pages')
+const pageRoutes = require('./routes/pages');
 const auth = require('./middleware/auth');
 
+const app = express();
+
+// ------------------ Handlebars Setup ------------------
 const hbs = handlebars.create({
   extname: 'hbs',
   layoutsDir: path.join(__dirname, 'views', 'layouts'),
@@ -19,10 +21,14 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ------------------ Middleware ------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Validate SESSION_SECRET: require it in non-development environments
+// Serve static files from /public
+app.use(express.static(path.join(__dirname, 'public')));
+
+// ------------------ Session ------------------
 let sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
   if (process.env.NODE_ENV === 'development') {
@@ -38,36 +44,33 @@ app.use(session({
   saveUninitialized: false,
   resave: false,
 }));
-app.use(express.static(path.join(__dirname, 'public')));
 
-// public auth routes
+// ------------------ Routes ------------------
+// Public routes
 app.use('/', authRoutes);
 app.use('/', pageRoutes);
 
-// Welcome route for testing
+// Welcome test route
 app.get('/welcome', (req, res) => {
-  res.json({status: 'success', message: 'Welcome!'});
+  res.json({ status: 'success', message: 'Welcome!' });
 });
 
-// protected routes mounted after this line
-app.use(auth)
-// example routes that could be protected
-// app.use('api/user', require('./routes/user'));
-// app.use('api/reports', require('./routes/reports '));
+// Protected routes mounted after auth middleware
+app.use(auth);
+// Example: app.use('/api/user', require('./routes/user'));
 
-
+// ------------------ Server ------------------
 const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
+// ------------------ Database ------------------
 const db = require('./config/database');
 
-// stuff to make the shutdown of containers more graceful
-// shoutout to computer systems for teaching me the basis of this stuff
+// ------------------ Graceful shutdown ------------------
 function gracefulShutdown(signal) {
   console.log(`Received ${signal}, starting graceful shutdown...`);
-
   const shutdownTimeout = setTimeout(() => {
     console.error('Graceful shutdown timed out, forcing exit');
     process.exit(1);

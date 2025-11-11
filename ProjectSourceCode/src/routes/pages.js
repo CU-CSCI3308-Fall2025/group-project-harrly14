@@ -8,7 +8,12 @@ router.get('/home', (req, res) => {
   const error = req.session.error;
   delete req.session.message;
   delete req.session.error;
-  res.render('pages/home', { message, error, user: req.session.user });
+  res.render('pages/home', { 
+    googleApiKey: process.env.API_KEY,
+    message,
+    error,
+    user: req.session.user
+  });
 });
 
 module.exports = router;
