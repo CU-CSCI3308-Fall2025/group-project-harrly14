@@ -36,7 +36,7 @@ describe('Testing Add User API', () => {
   //cleanup test cases
   before(async function() {
     try {
-      await db.none(`DELETE FROM users WHERE username IN ('testusername', 'duplicateuser')`);
+      await db.none(`TRUNCATE users RESTART IDENTITY CASCADE`); //TRUNCATE is faster than DELETE for whole tables
       console.log('Test users cleaned up successfully');
     } catch (err) {
       console.log('Cleanup before tests:', err.message);
