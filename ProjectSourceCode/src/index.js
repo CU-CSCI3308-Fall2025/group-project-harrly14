@@ -83,7 +83,8 @@ function gracefulShutdown(signal) {
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
 process.on('SIGINT', () => gracefulShutdown('SIGINT'));
 process.on('uncaughtException', (err) => {
-  gracefulShutdown('uncaughtException');
+  console.error('Uncaught exception:', err);
+  process.exit(1);
 });
 
 module.exports = server;
