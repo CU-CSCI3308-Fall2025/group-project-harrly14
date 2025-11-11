@@ -10,4 +10,7 @@ const dbConfig = {
 
 const db = pgp(dbConfig);
 
+// apparently this helps with gracefully shutting down docker containers
+db.$pgp = pgp;
+
 module.exports = db;

@@ -23,7 +23,7 @@ router.get('/login', (req, res) => {
 
 router.post('/register', async (req, res) => {
   try {
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const hashedPassword = await bcrypt.hash(req.body.password, 5); //decreased from 10 for speed
     await db.none('INSERT INTO users (username, email, password) VALUES ($1, $2, $3)', [req.body.username, req.body.email, hashedPassword]);
     res.json({ message: 'Success' });
   } catch (err) {

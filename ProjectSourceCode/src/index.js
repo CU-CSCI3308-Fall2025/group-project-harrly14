@@ -61,4 +61,27 @@ const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
 
+const db = require('./config/database');
+
+// stuff to make the shutdown of containers more graceful
+// shoutout to computer systems for teaching me the basis of this stuff
+function gracefulShutdown(signal) {
+  server.close(() => {
+    if (db && db.$pgp && typeof db.$pgp.end == 'function') {
+      db.$pgp.end();
+    }
+    process.exit(0);
+  });
+
+  setTimeout(() => {
+    process.exit(1);
+  }, 10000);
+}
+
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));
+process.on('uncaughtException', (err) => {
+  gracefulShutdown('uncaughtException');
+});
+
 module.exports = server;
