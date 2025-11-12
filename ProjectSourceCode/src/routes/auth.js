@@ -54,7 +54,7 @@ router.post('/login', async (req, res) => {
 
     if (!user) {
       req.session.message = 'No username found. Please register first.';
-      req.seqssion.error = true;
+      req.session.error = true;
       return res.redirect('/register');
     }
 
