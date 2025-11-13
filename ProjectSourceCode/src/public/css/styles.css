@@ -33,11 +33,17 @@ html, body {
 
 #sidebar-footer {
   position:fixed; 
-  background-color: #a0a0a0; 
   bottom:0px;
   right:0px; 
   width: 300px; 
   height: 75px
+}
+
+#toggle-sidebar-btn {
+  position: fixed;
+  top: 60px;
+  right: 15px;
+  z-index: 9999;
 }
 
 #sidebar-footer.hidden {
