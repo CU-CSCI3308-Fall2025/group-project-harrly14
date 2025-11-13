@@ -29,13 +29,19 @@ router.post('/register', async (req, res) => {
     const hashRounds = process.env.RUN_TESTS ==='true' ? 2 : 10;
     const hashedPassword = await bcrypt.hash(req.body.password, hashRounds); 
     await db.none('INSERT INTO users (username, email, password) VALUES ($1, $2, $3)', [req.body.username, req.body.email, hashedPassword]);
-    res.json({ message: 'Success' });
+    req.session.message = 'Registration successful! Please log in.';
+    req.session.error = false;
+    return res.redirect('/login');
   } catch (err) {
     console.error(err);
     if (err.code === '23505') {
-      res.status(400).json({ message: 'Username already exists' });
+      req.session.message = 'Username or email already exists.';
+      req.session.error = true;
+      return res.redirect('/register');
     } else {
-      res.status(500).json({ message: 'Error registering user' });
+      req.session.message = 'Error registering user.';
+      req.session.error = true;
+      return res.redirect('/register');
     }
   }
 });
