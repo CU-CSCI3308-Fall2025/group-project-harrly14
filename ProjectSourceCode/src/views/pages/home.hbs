@@ -14,6 +14,12 @@
         <button id="toggle-sidebar-btn" class="button-primary">Hide List</button>
       </div>
       <div id="place-list"></div>
+     <div id ="sidebar-footer">
+            <div id="button-container" class = "custom-container">
+                <button class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#modal1">Submit Report</button>
+            </div>
+     
+     </div> 
     </div>
   </div>
   <div id="error-display" style="display: none;"></div>
@@ -46,8 +52,10 @@
 
       const toggleButton = document.getElementById('toggle-sidebar-btn');
       const sidebar = document.getElementById('sidebar');
+      const sidebarfooter = document.getElementById('sidebar-footer');
       toggleButton.addEventListener('click', () => {
         sidebar.classList.toggle('hidden');
+        sidebarfooter.classList.toggle('hidden');
         if (sidebar.classList.contains('hidden')) {
             toggleButton.textContent = 'Show List';
         } else {
@@ -126,5 +134,11 @@
 
     window.onload = initMap;
   </script>
+
+
 </body>
+
+
+
+
 </html>

@@ -31,6 +31,26 @@ html, body {
     padding: 0;
 }
 
+#sidebar-footer {
+  position:fixed; 
+  background-color: #a0a0a0; 
+  bottom:0px;
+  right:0px; 
+  width: 300px; 
+  height: 75px
+}
+
+#sidebar-footer.hidden {
+  width: 0;
+  padding: 0;
+  display:none;
+}
+
+#button-container {
+  margin-left: 75px;
+  margin-top: 2px;
+}
+
 .heading {
   padding: 10px;
   background-color: #e9ecef;
