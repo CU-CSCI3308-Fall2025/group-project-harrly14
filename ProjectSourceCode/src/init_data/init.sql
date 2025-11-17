@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS parking_lots (
   lot_id SERIAL PRIMARY KEY NOT NULL,
   lot_location VARCHAR(100) NOT NULL,
   capacity INT NOT NULL CHECK (capacity > 0),
-  current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0)
+  current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0),
+  available_spots INT GENERATED ALWAYS AS (capacity - current_occupancy) STORED
 );
 
 
@@ -29,4 +30,4 @@ CREATE TABLE IF NOT EXISTS reports (
 
 
 INSERT INTO parking_lots (lot_location, capacity, current_occupancy) VALUES
-('Euclid Garage', 365, 0);
+('Euclid Garage', 365, 162);

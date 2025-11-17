@@ -2,10 +2,20 @@ let map;
 let infoWindow;
 const markers = [];
 
+const customParkingLots = [
+  {
+    lotId: 1,
+    displayName: 'Euclid Garage',
+    formattedAddress: "1725 Euclid Ave Euclid Parking Garage, Boulder, CO 80309",
+    location: { lat: 40.006, lng: -105.2706 },
+    availability: null,
+    businessStatus: "Operational"
+  }
+];
+
 async function initMap() {
   const { Map, InfoWindow } = await google.maps.importLibrary("maps");
   const { AdvancedMarkerElement } = await google.maps.importLibrary("marker");
-  const { Place } = await google.maps.importLibrary("places");
 
   const universityOfColorado = { lat: 40.0076, lng: -105.2659 };
 
@@ -18,88 +28,73 @@ async function initMap() {
 
   infoWindow = new InfoWindow();
 
-  await findParking(Place, AdvancedMarkerElement);
+  loadCustomParking(AdvancedMarkerElement);
 
   const toggleButton = document.getElementById('toggle-sidebar-btn');
   const sidebar = document.getElementById('sidebar');
-  //const sidebarfooter = document.getElementById('sidebar-footer');
+
   toggleButton.addEventListener('click', () => {
     sidebar.classList.toggle('hidden');
-    //sidebarfooter.classList.toggle('hidden');
-    if (sidebar.classList.contains('hidden')) {
-        toggleButton.textContent = 'Show List';
-    } else {
-        toggleButton.textContent = 'Hide List';
-    }
+
+    toggleButton.textContent = sidebar.classList.contains('hidden')
+      ? 'Show List'
+      : 'Hide List';
   });
 }
 
-async function findParking(Place, AdvancedMarkerElement) {
-  const request = {
-    textQuery: "parking at University of Colorado Boulder",
-    fields: ["displayName", "location", "formattedAddress", "businessStatus"],
-    locationBias: map.getCenter(),
-  };
+function loadCustomParking(AdvancedMarkerElement) {
+  const placeList = document.getElementById("place-list");
+  placeList.innerHTML = '';
 
-  try {
-    const { places } = await Place.searchByText(request);
+  const bounds = new google.maps.LatLngBounds();
 
-    if (places.length) {
-      const bounds = new google.maps.LatLngBounds();
-      const placeList = document.getElementById("place-list");
-      placeList.innerHTML = ''; // Clear previous results
+  customParkingLots.forEach((place) => {
+    const marker = new AdvancedMarkerElement({
+      map,
+      position: place.location,
+      title: place.displayName
+    });
 
-      places.forEach((place) => {
-        const marker = new AdvancedMarkerElement({
-          map,
-          position: place.location,
-          title: place.displayName,
-        });
+    markers.push(marker);
 
-        markers.push(marker);
+    const listItem = document.createElement("div");
+    listItem.className = "place-item";
+    listItem.innerHTML = `
+      <h3>${place.displayName}</h3>
+      <p>${place.formattedAddress}</p>
+    `;
+    placeList.appendChild(listItem);
 
-        const listItem = document.createElement("div");
-        listItem.className = "place-item";
-        listItem.innerHTML = `
-          <h3>${place.displayName}</h3>
-          <p>${place.formattedAddress}</p>
-        `;
-        placeList.appendChild(listItem);
+    const openInfoWindow = async() => {
+      infoWindow.close();
 
-        const openInfoWindow = () => {
-          infoWindow.close();
-          const content = document.createElement('div');
-          content.className = 'info-window-content';
-          content.innerHTML = `
-            <h3>${place.displayName}</h3>
-            <p><strong>Address:</strong> ${place.formattedAddress}</p>
-            <p><strong>Status:</strong> ${place.businessStatus || 'N/A'}</p>
-            <p><strong>Availability:</strong> Data not available</p>
-          `;
-          infoWindow.setContent(content);
-          infoWindow.open(map, marker);
-        };
+      const response = await fetch(`/api/availability/${place.lotId}`);
+      const data = await response.json();
+      const availability = data.available ?? "Unknown";
 
-        marker.addListener("click", openInfoWindow);
-        listItem.addEventListener("click", openInfoWindow);
+      const content = document.createElement('div');
+      content.className = 'info-window-content';
+      content.innerHTML = `
+        <h3>${place.displayName}</h3>
+        <p><strong>Address:</strong> ${place.formattedAddress}</p>
+        <p><strong>Status:</strong> ${place.businessStatus}</p>
+        <p><strong>Availability:</strong> ${availability}</p>
+      `;
+      infoWindow.setContent(content);
 
-        bounds.extend(place.location);
+      infoWindow.open({
+        anchor: marker,
+        map: map
       });
+    };
 
-      map.fitBounds(bounds);
-    } else {
-        showError("No parking locations found.");
-    }
-  } catch (error) {
-    console.error("Place search failed:", error);
-    showError("Failed to search for parking locations.");
-  }
-}
+    marker.addListener("click", openInfoWindow);
+    listItem.addEventListener("click", openInfoWindow);
 
-function showError(message) {
-    const errorDiv = document.getElementById('error-display');
-    errorDiv.textContent = message;
-    errorDiv.style.display = 'block';
+    bounds.extend(place.location);
+  });
+
+  map.fitBounds(bounds);
 }
 
 window.onload = initMap;
