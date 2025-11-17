@@ -11,7 +11,7 @@ router.get('/register', (req, res) => {
   const error = req.session.error;
   delete req.session.message;
   delete req.session.error;
-  res.render('pages/register', { message, error });
+  res.render('pages/register', { message, error, user: req.session.user});
 });
 
 router.get('/login', (req, res) => {
@@ -21,7 +21,7 @@ router.get('/login', (req, res) => {
     : req.session.error;
   delete req.session.message;
   delete req.session.error;
-  res.render('pages/login', { message, error });
+  res.render('pages/login', { message, error, user: req.session.user});
 });
 
 router.post('/register', async (req, res) => {
@@ -71,8 +71,13 @@ router.post('/login', async (req, res) => {
       return res.redirect('/login');
     }
 
-    req.session.user = user.username;
-    req.session.save(() => res.redirect('/home'));
+    req.session.user = { id: user.id, username: user.username, email: user.email };
+    req.session.save((err) => {
+      if (err) {
+        console.error('Session save error:', err);
+      }
+      return res.redirect('/home');
+    });
   } catch (err) {
     console.log('Login error:', err);
     req.session.message = 'An error occurred during login. Please try again.';
@@ -84,14 +89,21 @@ router.post('/login', async (req, res) => {
 // Protected home route. Comment this out if you want to test without login
  router.get('/home', isAuthenticated, (req, res) => {
   res.render('pages/home', { 
-    username: req.session.user,
-    googleApiKey: process.env.API_KEY
+    username: req.session.user ? req.session.user.username : null,
+    googleApiKey: process.env.API_KEY,
+    user: req.session.user
    });
 }); 
 
 router.get('/logout', (req, res) => {
   const msg = 'Logged out successfully';
-  req.session.destroy(() => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Session destroy error:', err);
+      res.clearCookie('connect.sid');
+      return res.redirect('/home');
+    }
+    res.clearCookie('connect.sid');
     return res.redirect(`/login?message=${encodeURIComponent(msg)}&error=false`);
   });
 });
