@@ -16,4 +16,8 @@ router.get('/home', (req, res) => {
   });
 });
 
+router.get('/account', (req, res) => {
+  res.render('pages/account', { user: req.session.user });
+});
+
 module.exports = router;
