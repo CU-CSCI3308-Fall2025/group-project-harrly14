@@ -14,8 +14,14 @@ async function seed() {
     const props = feat.properties || {};
     // Ensure lot_location is always a string
     const lot_location = props.lot_location || (props.LotNumber ? `Lot ${props.LotNumber}` : `Lot ${feat.id ?? ''}`);
-    const capacity = Number(props.capacity ?? 0);
-    const current_occupancy = Number(props.current_occupancy ?? 0);
+    let capacity = Number(props.capacity ?? 0);
+    if (Number.isNaN(capacity)) {
+      capacity = 0;
+    }
+    let current_occupancy = Number(props.current_occupancy ?? 0);
+    if (Number.isNaN(current_occupancy)) {
+      current_occupancy = 0;
+    }
     const geojson = feat;
 
     // skip if location already exists

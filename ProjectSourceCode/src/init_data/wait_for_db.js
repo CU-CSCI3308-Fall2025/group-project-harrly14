@@ -1,4 +1,6 @@
 const { Client } = require('pg');
+const MAX_RETRIES = 30;
+const RETRY_DELAY = 1000;
 
 async function waitForDB() {
   const client = new Client({
@@ -9,7 +11,7 @@ async function waitForDB() {
     password: process.env.POSTGRES_PASSWORD,
   });
   
-  let retries = 30;
+  let retries = MAX_RETRIES;
   while (retries > 0) {
     try {
       await client.connect();
@@ -22,7 +24,7 @@ async function waitForDB() {
         throw new Error('Database not ready after 30 retries');
       }
       console.log(`Waiting for database... (${retries} retries left)`);
-      await new Promise(res => setTimeout(res, 1000));
+      await new Promise(res => setTimeout(res, RETRY_DELAY));
     }
   }
 }

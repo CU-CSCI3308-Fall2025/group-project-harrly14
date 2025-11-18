@@ -22,7 +22,7 @@ async function initMap() {
   try {
     await drawLotsFromAPI('/parking-lots.js');
   } catch (e) {
-    console.warn('Failed to load polygons from server, failing back to Places', e);
+    console.warn('Failed to load polygons from server, falling back to Places', e);
     const { Place } = await google.maps.importLibrary("places");
     await findParking(Place, AdvancedMarkerElement);
   }
