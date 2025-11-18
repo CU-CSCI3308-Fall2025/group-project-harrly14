@@ -15,7 +15,8 @@ CREATE TABLE IF NOT EXISTS parking_lots (
   lot_id SERIAL PRIMARY KEY NOT NULL,
   lot_location VARCHAR(100) NOT NULL,
   capacity INT NOT NULL CHECK (capacity > 0),
-  current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0)
+  current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0),
+  geojson JSONB
 );
 
 
@@ -27,6 +28,3 @@ CREATE TABLE IF NOT EXISTS reports (
   time timestamptz NOT NULL
 );
 
-
-INSERT INTO parking_lots (lot_location, capacity, current_occupancy) VALUES
-('Euclid Garage', 365, 0);
