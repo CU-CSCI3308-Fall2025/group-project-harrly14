@@ -16,7 +16,9 @@ CREATE TABLE IF NOT EXISTS parking_lots (
   lot_location VARCHAR(100) NOT NULL,
   capacity INT NOT NULL CHECK (capacity > 0),
   current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0),
-  available_spots INT GENERATED ALWAYS AS (capacity - current_occupancy) STORED
+  available_spots INT GENERATED ALWAYS AS (capacity - current_occupancy) STORED,
+  latitude DECIMAL(9,7),
+  longitude DECIMAL(10,7)
 );
 
 
@@ -29,5 +31,8 @@ CREATE TABLE IF NOT EXISTS reports (
 );
 
 
-INSERT INTO parking_lots (lot_location, capacity, current_occupancy) VALUES
-('Euclid Garage', 365, 162);
+INSERT INTO parking_lots (lot_location, capacity, current_occupancy, latitude, longitude) VALUES
+('Euclid Garage', 365, 162, 40.006058, -105.270587);
+
+INSERT INTO parking_lots (lot_location, capacity, current_occupancy, latitude, longitude) VALUES
+('Lot 204', 365, 162, 40.005382, -105.269887);
