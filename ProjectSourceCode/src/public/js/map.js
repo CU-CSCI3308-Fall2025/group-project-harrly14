@@ -23,6 +23,7 @@ async function initMap() {
     await drawLotsFromAPI('/parking-lots.js');
   } catch (e) {
     console.warn('Failed to load polygons from server, failing back to Places', e);
+    const { Place } = await google.maps.importLibrary("places");
     await findParking(Place, AdvancedMarkerElement);
   }
 
@@ -31,13 +32,13 @@ async function initMap() {
 
   toggleButton.addEventListener('click', () => {
     sidebar.classList.toggle('hidden');
-    //sidebarfooter.classList.toggle('hidden');
     if (sidebar.classList.contains('hidden')) {
         toggleButton.textContent = 'Show List';
     } else {
         toggleButton.textContent = 'Hide List';
     }
   });
+  
   const filterCheckboxes = document.querySelectorAll('.type-filter');
   filterCheckboxes.forEach(checkbox => {
     checkbox.addEventListener('change', applyFilters);
@@ -53,23 +54,10 @@ function applyFilters() {
     return selectedTypes.some(selectedType => types.includes(selectedType));
   });
 
-  // Clear existing data and redraw
-  map.data.forEach(f => map.data.remove(f));
-  labelMarkers.forEach(m => m.setMap(null));
-  labelMarkers.length = 0;
   drawFeatures(filteredFeatures);
 }
 
 // fetch GeoJSON from the server and render polygons
-async function drawLotsFromAPI(url) {
-  const res = await fetch(url);
-  if (!res.ok) throw new Error('Failed to fetch parking lots from server');
-  const geojson = await res.json();
-  if (!geojson || !geojson.features || geojson.features.length === 0) throw new Error('No features returned');
-
-  allFeatures = geojson.features;
-  drawFeatures(allFeatures);
-}
 async function drawLotsFromAPI(url) {
   const res = await fetch(url);
   if (!res.ok) throw new Error('Failed to fetch parking lots from server');
@@ -224,53 +212,54 @@ async function findParking(Place, AdvancedMarkerElement) {
       const placeList = document.getElementById("place-list");
       placeList.innerHTML = ''; // Clear previous results
 
-  customParkingLots.forEach((place) => {
-    const marker = new AdvancedMarkerElement({
-      map,
-      position: place.location,
-      title: place.displayName
-    });
+      places.forEach((place) => {
+        const marker = new AdvancedMarkerElement({
+          map,
+          position: place.location,
+          title: place.displayName
+        });
 
-    markers.push(marker);
+        markers.push(marker);
 
-    const listItem = document.createElement("div");
-    listItem.className = "place-item";
-    listItem.innerHTML = `
-      <h3>${place.displayName}</h3>
-      <p>${place.formattedAddress}</p>
-    `;
-    placeList.appendChild(listItem);
+        const listItem = document.createElement("div");
+        listItem.className = "place-item";
+        listItem.innerHTML = `
+          <h3>${place.displayName}</h3>
+          <p>${place.formattedAddress}</p>
+        `;
+        placeList.appendChild(listItem);
 
-    const openInfoWindow = async() => {
-      infoWindow.close();
+        const openInfoWindow = () => {
+          infoWindow.close();
 
-      const response = await fetch(`/api/availability/${place.lotId}`);
-      const data = await response.json();
-      const availability = data.available ?? "Unknown";
+          const content = document.createElement('div');
+          content.className = 'info-window-content';
+          content.innerHTML = `
+            <h3>${place.displayName}</h3>
+            <p><strong>Address:</strong> ${place.formattedAddress}</p>
+            <p><strong>Status:</strong> ${place.businessStatus}</p>
+          `;
+          infoWindow.setContent(content);
 
-      const content = document.createElement('div');
-      content.className = 'info-window-content';
-      content.innerHTML = `
-        <h3>${place.displayName}</h3>
-        <p><strong>Address:</strong> ${place.formattedAddress}</p>
-        <p><strong>Status:</strong> ${place.businessStatus}</p>
-        <p><strong>Availability:</strong> ${availability}</p>
-      `;
-      infoWindow.setContent(content);
+          infoWindow.open({
+            anchor: marker,
+            map: map
+          });
+        };
 
-      infoWindow.open({
-        anchor: marker,
-        map: map
+        marker.addListener("click", openInfoWindow);
+        listItem.addEventListener("click", openInfoWindow);
+
+        bounds.extend(place.location);
       });
-    };
 
-    marker.addListener("click", openInfoWindow);
-    listItem.addEventListener("click", openInfoWindow);
-
-    bounds.extend(place.location);
-  });
-
-  map.fitBounds(bounds);
+      map.fitBounds(bounds);
+    } else {
+      console.log("No parking places found");
+    }
+  } catch (error) {
+    console.error("Error searching for parking:", error);
+  }
 }
 
 window.onload = initMap;
