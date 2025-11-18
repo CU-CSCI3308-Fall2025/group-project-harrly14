@@ -21,6 +21,9 @@ app.engine('hbs', hbs.engine);
 app.set('view engine', 'hbs');
 app.set('views', path.join(__dirname, 'views'));
 
+// ------------------ Database ------------------
+const db = require('./config/database');
+
 // ------------------ Middleware ------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -64,6 +67,29 @@ app.get('/welcome', (req, res) => {
   res.json({ status: 'success', message: 'Welcome!' });
 });
 
+app.get("/api/availability/:lotId", (req, res) => {
+  const lotId = req.params.lotId;
+
+  db.query(
+    "SELECT available_spots FROM parking_lots WHERE lot_id = $1",
+    [lotId],
+    (err, results) => {
+      if (err) {
+        console.error("DB error:", err);
+        return res.status(500).json({ error: "Database error" });
+      }
+
+      console.log("DB results:", results);
+
+      if (results.rows.length === 0) {
+        return res.json({ available: "Unknown" });
+      }
+
+      res.json({ available: results.rows[0].available_spots });
+    }
+  );
+});
+
 // Protected routes mounted after auth middleware
 app.use(auth);
 // Example: app.use('/api/user', require('./routes/user'));
@@ -73,9 +99,6 @@ const PORT = process.env.PORT || 3000;
 const server = app.listen(PORT, '0.0.0.0', () => {
   console.log(`Server running on http://localhost:${PORT}`);
 });
-
-// ------------------ Database ------------------
-const db = require('./config/database');
 
 // ------------------ Graceful shutdown ------------------
 function gracefulShutdown(signal) {
