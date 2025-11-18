@@ -46,6 +46,13 @@ html, body {
   z-index: 9999;
 }
 
+#modal-btn {
+  position: fixed;
+  bottom: 60px;
+  right: 350px;
+  z-index: 9999;
+}
+
 #sidebar-footer.hidden {
   width: 0;
   padding: 0;
