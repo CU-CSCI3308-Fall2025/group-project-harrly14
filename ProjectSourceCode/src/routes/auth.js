@@ -2,8 +2,6 @@ const express = require('express');
 const router = express.Router();
 const bcrypt = require('bcryptjs');
 const db = require('../config/database');
-// Comment this out if you want to test without login /* 
-
 const isAuthenticated = require('../middleware/auth');
 
 router.get('/register', (req, res) => {
@@ -55,7 +53,7 @@ router.post('/login', async (req, res) => {
     }
 
     const username = req.body.username;
-    const findUserQuery = `SELECT username,password FROM users WHERE username = $1`;
+    const findUserQuery = `SELECT user_id AS id, username, email, password FROM users WHERE username = $1`;
     let user = await db.oneOrNone(findUserQuery, [username]);
 
     if (!user) {

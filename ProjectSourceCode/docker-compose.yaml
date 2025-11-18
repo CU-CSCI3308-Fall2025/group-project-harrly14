@@ -24,8 +24,13 @@ services:
       - '3000:3000'
     volumes:
       - ./:/repository:delegated
-      - /repository/node_modules
-    command: sh -c "npm run prestart && if [ \"$$RUN_TESTS\" = \"true\" ]; then npm test; fi && exec node src/index.js"
-
+      - /repository/node_modules 
+    # wait for db to init, then add seed data (then runs as normal)
+    command: sh -c "
+      npm run prestart &&
+      node src/init_data/wait_for_db.js &&
+      npm run seed_lots &&
+      if [ \"$$RUN_TESTS\" = \"true\" ]; then npm test; fi &&
+      exec node src/index.js"
 volumes:
   group-project:

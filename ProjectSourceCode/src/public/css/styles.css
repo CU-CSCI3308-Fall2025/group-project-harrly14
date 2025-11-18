@@ -137,3 +137,41 @@ html, body {
 .info-window-content p {
     margin: 5px 0;
 }
+.lot-label {
+  background-color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #0b5ed7;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-weight: bold;
+  font-size: 12px;
+  color: #0b5ed7;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.lot-label:hover {
+  background-color: rgba(11, 93, 215, 0.1);
+  border-color: #084298;
+}
+
+#filter-section {
+  padding: 10px 15px;
+  background-color: #fff;
+  border-bottom: 1px solid #dee2e6;
+}
+
+#filter-section h3 {
+  margin: 0 0 10px 0;
+  font-size: 0.9em;
+  font-weight: 600;
+}
+#filter-section label {
+  display: inline-block;
+  margin: 4px 8px 4px 0;
+  font-size: 0.85em;
+  cursor: pointer;
+  white-space: nowrap;
+}
+#filter-section input[type="checkbox"] {
+  margin-right: 4px;
+  cursor: pointer;
+}
