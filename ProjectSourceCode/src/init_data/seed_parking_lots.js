@@ -34,13 +34,32 @@ async function seed() {
       continue;
     }
 
-    await db.none(
+    const inserted = await db.one(
       `INSERT INTO parking_lots (lot_location, capacity, current_occupancy, geojson)
-       VALUES ($1, $2, $3, $4)`,
-      [lot_location, capacity, current_occupancy, geojson]
+       VALUES ($1, $2, $3, $4)
+      RETURNING lot_id`,
+      [lot_location, capacity, current_occupancy, feat]  // store original geojson for now
     );
-    console.log(`Inserted ${lot_location}`);
+
+    const lotId = inserted.lot_id;
+
+    // Now update the stored geojson so it contains the lot_id inside properties
+    const updatedGeoJSON = {
+      ...feat,
+      properties: {
+        ...props,
+        lot_id: lotId   // <-- EMBED DB ID DIRECTLY INTO GEOJSON
+      }
+    };
+
+    await db.none(
+      `UPDATE parking_lots SET geojson = $1 WHERE lot_id = $2`,
+      [updatedGeoJSON, lotId]
+    );
+
+    console.log(`Inserted ${lot_location} (lot_id = ${lotId})`);
   }
+
   console.log('Seeding complete');
 }
 

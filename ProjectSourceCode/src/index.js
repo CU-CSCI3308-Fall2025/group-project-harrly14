@@ -61,6 +61,8 @@ app.use('/', pageRoutes);
 
 // Mount new API route for parking lot polygons
 app.use('/parking-lots.js', require('./routes/parking_lots'));
+app.use('/api/parking-sessions', require('./routes/parking_sessions'));
+
 
 // Welcome test route
 app.get('/welcome', (req, res) => {

@@ -8,7 +8,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 131
       },
       "geometry": {
         "coordinates": [
@@ -113,7 +113,7 @@
           "Short-term Pay",
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 137
       },
       "geometry": {
         "coordinates": [
@@ -151,7 +151,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 51
       },
       "geometry": {
         "coordinates": [
@@ -197,7 +197,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 30
       },
       "geometry": {
         "coordinates": [
@@ -239,7 +239,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 22
       },
       "geometry": {
         "coordinates": [
@@ -277,7 +277,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 15
       },
       "geometry": {
         "coordinates": [
@@ -315,7 +315,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 77
       },
       "geometry": {
         "coordinates": [
@@ -361,7 +361,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 10
       },
       "geometry": {
         "coordinates": [
@@ -407,7 +407,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 27
       },
       "geometry": {
         "coordinates": [
@@ -477,7 +477,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 17
       },
       "geometry": {
         "coordinates": [
@@ -527,7 +527,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 5
       },
       "geometry": {
         "coordinates": [
@@ -578,7 +578,7 @@
           "Short-term Pay",
           "Covered"
         ],
-        "capacity": 100
+        "capacity": 365
       },
       "geometry": {
         "coordinates": [
@@ -616,7 +616,7 @@
         "Types": [
           "Short-term Pay"
         ],
-        "capacity": 100
+        "capacity": 7
       },
       "geometry": {
         "coordinates": [
@@ -674,7 +674,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 132
       },
       "geometry": {
         "coordinates": [
@@ -737,7 +737,7 @@
           "Short-term Pay",
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 232
       },
       "geometry": {
         "coordinates": [
@@ -788,7 +788,7 @@
           "Permit",
           "Covered"
         ],
-        "capacity": 100
+        "capacity": 889
       },
       "geometry": {
         "coordinates": [
@@ -826,7 +826,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 38
       },
       "geometry": {
         "coordinates": [
@@ -873,7 +873,7 @@
           "Permit",
           "Covered"
         ],
-        "capacity": 100
+        "capacity": 370
       },
       "geometry": {
         "coordinates": [
@@ -911,7 +911,7 @@
           "Types": [
             "Permit"
           ],
-        "capacity": 100
+        "capacity": 198
         },
       "geometry": {
         "coordinates": [
@@ -993,7 +993,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 163
       },
       "geometry": {
         "coordinates": [
@@ -1047,7 +1047,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 43
       },
       "geometry": {
         "coordinates": [
@@ -1085,7 +1085,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 45
       },
       "geometry": {
         "coordinates": [
@@ -1123,7 +1123,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 63
       },
       "geometry": {
         "coordinates": [
@@ -1161,7 +1161,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 206
       },
       "geometry": {
         "coordinates": [
@@ -1224,7 +1224,7 @@
           "Short-term Pay",
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 173
       },
       "geometry": {
         "coordinates": [
@@ -1358,7 +1358,7 @@
         "Types": [
           "Permit"
         ],
-        "capacity": 100
+        "capacity": 193
       },
       "geometry": {
         "coordinates": [
@@ -1400,7 +1400,7 @@
         "Types": [
           "Res-hall Permit"
         ],
-        "capacity": 100
+        "capacity": 145
       },
       "geometry": {
         "coordinates": [
@@ -1450,7 +1450,7 @@
         "Types": [
           "Res-hall Permit"
         ],
-        "capacity": 100
+        "capacity": 136
       },
       "geometry": {
         "coordinates": [

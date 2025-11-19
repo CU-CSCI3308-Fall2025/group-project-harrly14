@@ -103,7 +103,8 @@ function drawFeatures(features) {
     listItem.className = 'place-item';
     listItem.innerHTML = `<h3>${name}</h3>
                           <p>Type: ${types.join(', ')}</p>
-                          <p>Capacity: ${props.capacity ?? 'n/a'}</p>`;
+                          <p>Capacity: ${props.capacity ?? 'n/a'}</p>
+                          <button class="start-session-btn">Start Parking Session Here</button>`;
     placeList.appendChild(listItem);
 
     const centroid = computeCentroid(feature.geometry);
@@ -125,6 +126,38 @@ function drawFeatures(features) {
     };
 
     listItem.addEventListener('click', openInfoWindowForLot);
+    const startBtn = listItem.querySelector('.start-session-btn');
+
+    startBtn.addEventListener('click', async (e) => {
+      e.stopPropagation(); // prevent triggering the listItem click
+      const lotId = props.lot_id;
+
+      try {
+        const res = await fetch('/api/parking-sessions/start', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ lotId })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          alert(data.error || 'Failed to start parking session');
+          return;
+        }
+
+        alert(data.message || 'Parking session started!');
+        
+        // Update occupancy in sidebar and map.data (optional)
+        props.current_occupancy = (props.current_occupancy || 0) + 1;
+        drawFeatures(allFeatures); // redraw to show updated occupancy
+      } catch (err) {
+        console.error(err);
+        alert('Error starting parking session');
+      }
+    });
 
     const geom = feature.geometry;
     if (geom.type === 'Polygon') {
