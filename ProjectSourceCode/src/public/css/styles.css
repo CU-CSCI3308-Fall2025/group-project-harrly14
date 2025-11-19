@@ -48,8 +48,8 @@ html, body {
 
 #modal-btn {
   position: fixed;
-  bottom: 60px;
-  right: 350px;
+  bottom: 10px;
+  left: 10px;
   z-index: 9999;
 }
 
