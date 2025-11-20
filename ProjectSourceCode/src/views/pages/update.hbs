@@ -1,0 +1,23 @@
+{{> message}}
+
+
+<h2>Verify Identity</h2>
+
+<p>Enter your current password to continue.</p>
+
+<form action="/update" method="POST">
+    <div class="form-group">
+        <label for="currentPassword">Current Password</label>
+        <input 
+            type="password" 
+            id="currentPassword" 
+            class="form-control" 
+            name="currentPassword" 
+            required
+        >
+    </div>
+
+    <button type="submit" class="btn btn-primary">
+        Continue
+    </button>
+</form>

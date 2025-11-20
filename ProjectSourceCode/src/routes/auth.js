@@ -4,6 +4,96 @@ const bcrypt = require('bcryptjs');
 const db = require('../config/database');
 const isAuthenticated = require('../middleware/auth');
 
+router.get('/update', isAuthenticated, (req, res) => {
+  const error = req.flash ? req.flash('error') : null;
+  res.render('pages/update', { user: req.session.user, error });
+});
+
+router.post('/update', isAuthenticated, async (req, res) => {
+  try {
+    const { currentPassword } = req.body;
+    const sessionUser = req.session.user;
+    if (!sessionUser || !sessionUser.id) {
+      req.flash && req.flash('error', 'Not authenticated');
+      return res.redirect('/login');
+    }
+
+    const dbUser = await db.oneOrNone(
+      'SELECT user_id, password, username, email FROM users WHERE user_id = $1',
+      [sessionUser.id]
+    );
+
+    if (!dbUser) {
+      req.flash && req.flash('error', 'User not found');
+      return res.redirect('/login');
+    }
+
+    const valid = await bcrypt.compare(currentPassword, dbUser.password);
+    if (!valid) {
+      req.flash && req.flash('error', 'Incorrect password.');
+      return res.redirect('/update');
+    }
+
+    const userForForm = { id: dbUser.user_id, username: dbUser.username, email: dbUser.email };
+    return res.render('pages/update_account_form', { user: userForForm });
+  } catch (err) {
+    console.error('Error in /update:', err);
+    req.flash && req.flash('error', 'An error occurred. Try again.');
+    return res.redirect('/update');
+  }
+});
+
+router.post('/update_account_form', isAuthenticated, async (req, res) => {
+  try {
+    const userId = req.session.user && req.session.user.id;
+    if (!userId) {
+      req.flash && req.flash('error', 'Not authenticated');
+      return res.redirect('/login');
+    }
+
+    const { username, email, password } = req.body;
+
+    const setParts = [];
+    const params = [];
+    let idx = 1;
+
+    if (typeof username === 'string' && username.trim().length > 0) {
+      setParts.push(`username = $${idx++}`);
+      params.push(username.trim());
+    }
+    if (typeof email === 'string' && email.trim().length > 0) {
+      setParts.push(`email = $${idx++}`);
+      params.push(email.trim());
+    }
+    if (password && password.trim().length > 0) {
+      const hashed = await bcrypt.hash(password, 10);
+      setParts.push(`password = $${idx++}`);
+      params.push(hashed);
+    }
+
+    if (setParts.length === 0) {
+      req.flash && req.flash('error', 'No fields to update');
+      return res.redirect('/account');
+    }
+
+    const whereIndex = idx;
+    const sql = `UPDATE users SET ${setParts.join(', ')} WHERE user_id = $${whereIndex}`;
+    params.push(userId);
+
+    await db.none(sql, params);
+
+    req.session.user.username = username || req.session.user.username;
+    req.session.user.email = email || req.session.user.email;
+
+    req.flash && req.flash('success', 'Account updated successfully!');
+    return res.redirect('/account');
+  } catch (err) {
+    console.error('Error updating account:', err);
+    req.flash && req.flash('error', 'Could not update account. Try again.');
+    return res.redirect('/account');
+  }
+});
+
 router.get('/register', (req, res) => {
   const message = req.session.message;
   const error = req.session.error;
