@@ -45,4 +45,29 @@ router.post('/start', isAuthenticated, async (req, res) => {
   }
 });
 
+router.post('/end', async (req, res) => {
+  const { lotId } = req.body;
+  const userId = req.session.user.id;
+
+  try {
+    const user = await db.query('SELECT current_session FROM users WHERE user_id=$1', [userId]);
+    if (!user.rows[0]) return res.status(404).json({ error: 'User not found' });
+    if (!user.rows[0].current_session) return res.status(400).json({ error: 'No active session' });
+
+    // End session: mark user as no longer having an active session
+    await db.query('UPDATE users SET current_session = FALSE WHERE user_id=$1', [userId]);
+
+    // Decrement occupancy for the lot
+    await db.query(
+      'UPDATE parking_lots SET current_occupancy = GREATEST(current_occupancy - 1, 0) WHERE lot_id=$1',
+      [lotId]
+    );
+
+    res.json({ message: 'Parking session ended' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
 module.exports = router;

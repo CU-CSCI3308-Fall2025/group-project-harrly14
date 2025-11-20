@@ -3,6 +3,8 @@ let infoWindow;
 const markers = [];
 const labelMarkers = [];
 let allFeatures = []; //store for filtering
+let currentSelectedLotId = null;
+let sessionBtn;
 
 async function initMap() {
   const { Map, InfoWindow } = await google.maps.importLibrary("maps");
@@ -27,21 +29,61 @@ async function initMap() {
     await findParking(Place, AdvancedMarkerElement);
   }
 
-  const toggleButton = document.getElementById('toggle-sidebar-btn');
-  const sidebar = document.getElementById('sidebar');
+  sessionBtn = document.querySelector('#parking-session .start-session-btn');
 
-  toggleButton.addEventListener('click', () => {
-    sidebar.classList.toggle('hidden');
-    if (sidebar.classList.contains('hidden')) {
-        toggleButton.textContent = 'Show List';
+  // Initialize session button text based on DB
+  try {
+    const res = await fetch('/api/users/current-session');
+    const data = await res.json();
+    if (data.current_session) {
+      sessionBtn.textContent = 'End Parking Session';
     } else {
-        toggleButton.textContent = 'Hide List';
+      sessionBtn.textContent = 'Start Parking Session Here';
     }
-  });
-  
-  const filterCheckboxes = document.querySelectorAll('.type-filter');
-  filterCheckboxes.forEach(checkbox => {
-    checkbox.addEventListener('change', applyFilters);
+  } catch (err) {
+    console.error('Failed to fetch current session', err);
+  }
+
+  sessionBtn.addEventListener('click', async () => {
+    if (!currentSelectedLotId) {
+      alert('Please select a parking lot first');
+      return;
+    }
+
+    const isEnding = sessionBtn.textContent.includes('End');
+
+    const endpoint = isEnding ? '/api/parking-sessions/end' : '/api/parking-sessions/start';
+    try {
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ lotId: currentSelectedLotId })
+      });
+
+      const data = await res.json();
+      if (!res.ok && data.error) {
+        alert(data.error);
+        return;
+      }
+
+      // Toggle button text based on DB
+      sessionBtn.textContent = isEnding ? 'Start Parking Session Here' : 'End Parking Session';
+
+      // Update map occupancy using DB value
+      const lotFeature = allFeatures.find(f => f.properties.lot_id === currentSelectedLotId);
+      if (lotFeature) {
+        lotFeature.properties.current_occupancy = Math.max(
+          0,
+          (lotFeature.properties.current_occupancy || 0) + (isEnding ? -1 : 1)
+        );
+        drawFeatures(allFeatures);
+      }
+
+      alert(data.message || (isEnding ? 'Parking session ended!' : 'Parking session started!'));
+    } catch (err) {
+      console.error(err);
+      alert('Error updating parking session');
+    }
   });
 }
 
@@ -103,8 +145,13 @@ function drawFeatures(features) {
     listItem.className = 'place-item';
     listItem.innerHTML = `<h3>${name}</h3>
                           <p>Type: ${types.join(', ')}</p>
-                          <p>Capacity: ${props.capacity ?? 'n/a'}</p>
-                          <button class="start-session-btn">Start Parking Session Here</button>`;
+                          <p>Capacity: ${props.capacity ?? 'n/a'}</p>`;
+
+    listItem.addEventListener('click', () => {
+      currentSelectedLotId = props.lot_id;
+      openInfoWindowForLot();
+    });
+
     placeList.appendChild(listItem);
 
     const centroid = computeCentroid(feature.geometry);
@@ -124,40 +171,6 @@ function drawFeatures(features) {
         map.panTo(centroid);
       }
     };
-
-    listItem.addEventListener('click', openInfoWindowForLot);
-    const startBtn = listItem.querySelector('.start-session-btn');
-
-    startBtn.addEventListener('click', async (e) => {
-      e.stopPropagation(); // prevent triggering the listItem click
-      const lotId = props.lot_id;
-
-      try {
-        const res = await fetch('/api/parking-sessions/start', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({ lotId })
-        });
-
-        const data = await res.json();
-
-        if (!res.ok) {
-          alert(data.error || 'Failed to start parking session');
-          return;
-        }
-
-        alert(data.message || 'Parking session started!');
-        
-        // Update occupancy in sidebar and map.data (optional)
-        props.current_occupancy = (props.current_occupancy || 0) + 1;
-        drawFeatures(allFeatures); // redraw to show updated occupancy
-      } catch (err) {
-        console.error(err);
-        alert('Error starting parking session');
-      }
-    });
 
     const geom = feature.geometry;
     if (geom.type === 'Polygon') {

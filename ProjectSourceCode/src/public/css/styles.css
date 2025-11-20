@@ -7,9 +7,11 @@ html, body {
 
 #container {
   display: flex;
-  height: 100%;
+  height: 100vh;
   width: 100%;
+  overflow: hidden;
 }
+
 
 #map {
   flex-grow: 1;
@@ -18,12 +20,11 @@ html, body {
 
 #sidebar {
   width: 300px;
-  max-width: 100%;
   background-color: #f8f9fa;
-  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  transition: width 0.3s;
+  height: 100vh; 
+  padding-bottom: 50px; 
 }
 
 #sidebar.hidden {
@@ -79,10 +80,8 @@ html, body {
 }
 
 #place-list {
-  list-style-type: none;
-  padding: 0;
-  margin: 0;
-  flex-grow: 1;
+  flex: 1;
+  overflow-y: auto;
 }
 
 .place-item {
@@ -162,7 +161,6 @@ html, body {
 
 #filter-section {
   padding: 10px 15px;
-  background-color: #fff;
   border-bottom: 1px solid #dee2e6;
 }
 
@@ -171,6 +169,7 @@ html, body {
   font-size: 0.9em;
   font-weight: 600;
 }
+
 #filter-section label {
   display: inline-block;
   margin: 4px 8px 4px 0;
@@ -178,7 +177,29 @@ html, body {
   cursor: pointer;
   white-space: nowrap;
 }
+
 #filter-section input[type="checkbox"] {
   margin-right: 4px;
   cursor: pointer;
 }
+
+#parking-session {
+  position: sticky;
+  bottom: 0;
+  background: #f8f9fa;
+  padding: 10px;
+  border-top: 1px solid #dee2e6;
+  z-index: 1000;
+}
+
+.start-session-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.25rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  background-color: #1a73e8;
+  color: white;
+  width: 100%;
+}
+

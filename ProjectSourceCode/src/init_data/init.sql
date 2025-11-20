@@ -28,3 +28,4 @@ CREATE TABLE IF NOT EXISTS reports (
   time timestamptz NOT NULL
 );
 
+
