@@ -80,12 +80,33 @@ function drawFeatures(features) {
   // Add filtered features
   map.data.addGeoJson({ type: 'FeatureCollection', features });
 
+  // style polygons by type
+const typeColors = {
+  'Permit':         { fill: '#1E88E5', stroke: '#0D47A1' },
+  'Short-term Pay': { fill: '#FF6D00', stroke: '#E65100' },
+  'Res-hall Permit':{ fill: '#D81B60', stroke: '#880E4F' },
+  'Covered':        { fill: '#00BFA5', stroke: '#00695C' },
+  'default':        { fill: '#455A64', stroke: '#263238' }
+};
+
   // style polygons
-  map.data.setStyle({
-    fillColor: '#1a73e8',
-    strokeColor: '#0b5ed7',
-    strokeWeight: 1,
-    fillOpacity: 0.45
+  const typePriority = ['Covered', 'Res-hall Permit', 'Short-term Pay', 'Permit'];
+
+  map.data.setStyle(feature => {
+    let types = feature.getProperty('Types') || [];
+    if (!Array.isArray(types)) types = [types];
+
+    // choose first type that appears in the priority list, otherwise use the first type, otherwise 'default'
+    let selectedType = types.find(t => typePriority.includes(t)) || types[0] || 'default';
+    if (!typeColors[selectedType]) selectedType = 'default';
+    const cols = typeColors[selectedType];
+
+    return {
+      fillColor: cols.fill,
+      strokeColor: cols.stroke,
+      strokeWeight: 1,
+      fillOpacity: 0.45
+    };
   });
 
   const placeList = document.getElementById('place-list');
@@ -167,9 +188,19 @@ function drawFeatures(features) {
     }
 
     if (centroid) {
+      // compute label color based on same type logic used for polygons
+      let labelTypes = types || [];
+      if (!Array.isArray(labelTypes)) labelTypes = [labelTypes];
+      let labelSelectedType = labelTypes.find(t => typePriority.includes(t)) || labelTypes[0] || 'default';
+      if (!typeColors[labelSelectedType]) labelSelectedType = 'default';
+      const labelCols = typeColors[labelSelectedType];
+
       const labelDiv = document.createElement('div');
       labelDiv.className = 'lot-label';
       labelDiv.textContent = lotNumber;
+      labelDiv.style.color = labelCols.stroke;
+      labelDiv.style.borderColor = labelCols.stroke;
+      labelDiv.style.backgroundColor = 'rgba(255,255,255,0.9)';
 
       const labelMarker = new google.maps.marker.AdvancedMarkerElement({
         map,
