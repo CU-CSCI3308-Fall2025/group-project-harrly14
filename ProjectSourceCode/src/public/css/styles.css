@@ -20,11 +20,12 @@ html, body {
 
 #sidebar {
   width: 300px;
+  max-width: 100%;
   background-color: #f8f9fa;
+  overflow-y: auto;
   display: flex;
   flex-direction: column;
-  height: 100vh; 
-  padding-bottom: 50px; 
+  transition: width 0.3s;
 }
 
 #sidebar.hidden {
@@ -203,3 +204,6 @@ html, body {
   width: 100%;
 }
 
+.hidden {
+  display: none;
+}
