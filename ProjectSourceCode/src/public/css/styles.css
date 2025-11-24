@@ -5,6 +5,17 @@ html, body {
   font-family: sans-serif;
 }
 
+body {
+  background-image: url('/images/CU_Campus.jpeg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.navbar {
+  background-color: white;
+}
+
 #container {
   display: flex;
   height: 100vh;
