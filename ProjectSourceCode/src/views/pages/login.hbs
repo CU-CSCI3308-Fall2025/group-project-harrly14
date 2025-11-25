@@ -1,18 +1,23 @@
 {{> message}}
-<form action="/login" method="POST" class="login-form"  style="align-self: center; background: white; padding: 30px; border-radius: 10px;">
-    <div class="form-group">
-        <label for="username">Username</label>
-        <input type="text" id="username" class="form-control" name="username" required>
-    </div>
-    <div class="form-group">
-        <label for="email">Email</label>
-        <input type="email" id="email" class="form-control" name="email" required>
-    <div class="form-group">
-    <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" class="form-control" name="password" required>
-    </div>
-    <button type="submit" class="btn btn-primary">Login</button>
-    <br>
-    Don't have an account? <a href="/register">Register here</a>
-</form>
+<div class="login-center">
+    <form action="/login" method="POST" class="login-form">
+        <div class="form-group">
+            <label for="username">Username</label>
+            <input type="text" id="username" class="form-control" name="username" required>
+        </div>
+
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" class="form-control" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" class="form-control" name="password" required>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Login</button>
+        <br>
+        Don't have an account? <a href="/register">Register here</a>
+    </form>
+</div>

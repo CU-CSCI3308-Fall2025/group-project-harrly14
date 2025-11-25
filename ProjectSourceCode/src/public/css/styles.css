@@ -218,3 +218,19 @@ body {
 .hidden {
   display: none;
 }
+
+.login-center {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.login-form {
+  background: white;
+  padding: 30px 40px;
+  border-radius: 10px;
+  width: 360px;
+  box-shadow: 0 4px 14px rgba(0,0,0,0.12);
+}
