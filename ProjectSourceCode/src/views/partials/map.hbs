@@ -32,6 +32,12 @@
   v: "weekly"});
 </script>
 
+{{!-- expose login flag --}}
+<script> 
+  window.isLoggedIn = {{#if user}}true{{else}}false{{/if}};
+</script>
+
+
 <script src="/js/map.js"></script>
 
 <script>
