@@ -5,13 +5,6 @@ html, body {
   font-family: sans-serif;
 }
 
-body {
-  background-image: url('/images/CU_Campus.jpg');
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-}
-
 .navbar {
   background-color: white;
 }
