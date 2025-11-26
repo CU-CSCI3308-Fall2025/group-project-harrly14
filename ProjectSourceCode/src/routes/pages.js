@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const isAuthenticated = require('../middleware/auth'); 
 
 router.get('/', (req, res) => res.redirect('/home'));
 
@@ -12,11 +13,11 @@ router.get('/home', (req, res) => {
     googleApiKey: process.env.API_KEY,
     message,
     error,
-    user: req.session.user
+    user: req.session.user 
   });
 });
 
-router.get('/account', (req, res) => {
+router.get('/account', isAuthenticated, (req, res) => {  // this is protected
   res.render('pages/account', { user: req.session.user });
 });
 

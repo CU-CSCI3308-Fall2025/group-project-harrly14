@@ -56,8 +56,8 @@ app.use((req, res, next) => {
 
 // ------------------ Routes ------------------
 // Public routes
-app.use('/', authRoutes);
 app.use('/', pageRoutes);
+app.use('/', authRoutes);
 
 // Mount new API route for parking lot polygons
 app.use('/parking-lots.js', require('./routes/parking_lots'));

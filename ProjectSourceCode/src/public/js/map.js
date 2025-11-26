@@ -31,6 +31,20 @@ async function initMap() {
 
   sessionBtn = document.querySelector('#parking-session .start-session-btn');
 
+  // Add handler for modal button to redirect if not logged in
+  const modalBtn = document.getElementById('modal-btn');
+  if (modalBtn) {
+    modalBtn.addEventListener('click', function(e) {
+      if (!window.isLoggedIn) {
+        e.preventDefault();
+        e.stopImmediatePropagation();
+        window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
+        return;
+      }
+      // If logged in, allow the modal to open normally
+    });
+  }
+
   // Initialize session button text based on DB
   try {
     const res = await fetch('/api/users/current-session');
@@ -45,6 +59,10 @@ async function initMap() {
   }
 
   sessionBtn.addEventListener('click', async () => {
+    if (!window.isLoggedIn) {
+      window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
+      return;
+    }
     if (!currentSelectedLotId) {
       alert('Please select a parking lot first');
       return;
@@ -337,6 +355,17 @@ async function findParking(Place, AdvancedMarkerElement) {
   } catch (error) {
     console.error("Error searching for parking:", error);
   }
+}
+
+function saveEvent() {
+  if (!window.isLoggedIn) {
+    window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
+    return;
+  }
+  
+  // TODO: Add report submission logic here
+  console.log('Save event called');
+  alert('Report submission not yet implemented');
 }
 
 window.onload = initMap;
