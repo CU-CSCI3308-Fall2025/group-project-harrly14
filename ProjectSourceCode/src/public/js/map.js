@@ -86,11 +86,15 @@ async function initMap() {
       sessionBtn.textContent = isEnding ? 'Start Parking Session Here' : 'End Parking Session';
 
       // Update map occupancy using DB value
-      const lotFeature = allFeatures.find(f => f.properties.lot_id === currentSelectedLotId);
+      const lotFeature = allFeatures.find(f => {
+        const pid = (f.properties !== undefined && f.properties !== null) ? f.properties.lot_id : undefined;
+        return pid === currentSelectedLotId;
+      });
       if (lotFeature) {
-        lotFeature.properties.current_occupancy = Math.max(
+        const props = (lotFeature.properties !== undefined && lotFeature.properties !== null) ? lotFeature.properties : {};
+        props.current_occupancy = Math.max(
           0,
-          (lotFeature.properties.current_occupancy || 0) + (isEnding ? -1 : 1)
+          (props.current_occupancy !== undefined && props.current_occupancy !== null ? props.current_occupancy : 0) + (isEnding ? -1 : 1)
         );
         drawFeatures(allFeatures);
       }
@@ -104,11 +108,14 @@ async function initMap() {
 }
 
 function applyFilters() {
-  const selectedTypes = Array.from(document.querySelectorAll('.type-filter:checked'))
-    .map(cb => cb.value);
+  const checked = Array.from(document.querySelectorAll('.type-filter:checked'));
+  const selectedTypes = checked.map(cb => cb.value);
 
   const filteredFeatures = allFeatures.filter(feature => {
-    const types = feature.properties.Types || [];
+    const props = (feature.properties !== undefined && feature.properties !== null) ? feature.properties : {};
+    let types = props.Types;
+    if (types === undefined || types === null) types = [];
+    if (!Array.isArray(types)) types = [types];
     return selectedTypes.some(selectedType => types.includes(selectedType));
   });
 
@@ -151,11 +158,13 @@ const typeColors = {
   const typePriority = ['Covered', 'Res-hall Permit', 'Short-term Pay', 'Permit'];
 
   map.data.setStyle(feature => {
-    let types = feature.getProperty('Types') || [];
+    let types = feature.getProperty('Types');
+    if (types === undefined || types === null) types = [];
     if (!Array.isArray(types)) types = [types];
 
     // choose first type that appears in the priority list, otherwise use the first type, otherwise 'default'
-    let selectedType = types.find(t => typePriority.includes(t)) || types[0] || 'default';
+    let selectedType = types.find(t => typePriority.includes(t));
+    if (selectedType === undefined) selectedType = (types.length > 0 ? types[0] : 'default');
     if (!typeColors[selectedType]) selectedType = 'default';
     const cols = typeColors[selectedType];
 
@@ -173,19 +182,21 @@ const typeColors = {
   const bounds = new google.maps.LatLngBounds();
 
   features.forEach(feature => {
-    const props = feature.properties || {};
-    const name = props.lot_location || props.LotNumber || `Lot ${props.lot_id || ''}`;
-    const lotNumber = props.LotNumber || props.lot_id || '?';
-    const types = props.Types || [];
+    const props = (feature.properties !== undefined && feature.properties !== null) ? feature.properties : {};
+    const name = (props.lot_id !== undefined && props.lot_id !== null) ? props.lot_id : (props.LotNumber !== undefined && props.LotNumber !== null ? props.LotNumber : 'Parking Lot');
+    const lotNumber = (props.LotNumber !== undefined && props.LotNumber !== null) ? props.LotNumber : ((props.lot_id !== undefined && props.lot_id !== null) ? props.lot_id : '?');
+    let types = props.Types;
+    if (types === undefined || types === null) types = [];
+    if (!Array.isArray(types)) types = [types];
     
     const listItem = document.createElement('div');
     listItem.className = 'place-item';
     listItem.innerHTML = `<h3>${name}</h3>
                           <p>Type: ${types.join(', ')}</p>
-                          <p>Capacity: ${props.capacity ?? 'n/a'}</p>`;
+                          <p>Capacity: ${ (props.capacity !== undefined && props.capacity !== null) ? props.capacity : 'n/a' }</p>`;
 
     listItem.addEventListener('click', () => {
-      currentSelectedLotId = props.lot_id;
+      currentSelectedLotId = (props.lot_id !== undefined && props.lot_id !== null) ? props.lot_id : null;
       openInfoWindowForLot();
     });
 
@@ -198,8 +209,8 @@ const typeColors = {
       content.className = 'info-window-content';
       content.innerHTML = `<h3>${name}</h3>
                            <p>Type: ${types.join(', ')}</p>
-                           <p>Capacity: ${props.capacity ?? 'n/a'}</p>
-                           <p>Occupancy: ${props.current_occupancy ?? 'n/a'}</p>`;
+                           <p>Capacity: ${ (props.capacity !== undefined && props.capacity !== null) ? props.capacity : 'n/a' }</p>
+                           <p>Occupancy: ${ (props.current_occupancy !== undefined && props.current_occupancy !== null) ? props.current_occupancy : 'n/a' }</p>`;
       infoWindow.setContent(content);
 
       if (centroid) {
@@ -210,17 +221,19 @@ const typeColors = {
     };
 
     const geom = feature.geometry;
-    if (geom.type === 'Polygon') {
-      geom.coordinates[0].forEach(([lng, lat]) => bounds.extend({ lat, lng }));
-    } else if (geom.type === 'MultiPolygon') {
-      geom.coordinates.forEach(poly => poly[0].forEach(([lng, lat]) => bounds.extend({ lat, lng })));
+    if (geom && geom.type === 'Polygon') {
+      const ring = geom.coordinates[0] || [];
+      ring.forEach(([lng, lat]) => bounds.extend({ lat, lng }));
+    } else if (geom && geom.type === 'MultiPolygon') {
+      (geom.coordinates || []).forEach(poly => (poly[0] || []).forEach(([lng, lat]) => bounds.extend({ lat, lng })));
     }
 
     if (centroid) {
       // compute label color based on same type logic used for polygons
-      let labelTypes = types || [];
+      let labelTypes = types;
       if (!Array.isArray(labelTypes)) labelTypes = [labelTypes];
-      let labelSelectedType = labelTypes.find(t => typePriority.includes(t)) || labelTypes[0] || 'default';
+      let labelSelectedType = labelTypes.find(t => typePriority.includes(t));
+      if (labelSelectedType === undefined) labelSelectedType = (labelTypes.length > 0 ? labelTypes[0] : 'default');
       if (!typeColors[labelSelectedType]) labelSelectedType = 'default';
       const labelCols = typeColors[labelSelectedType];
 
@@ -244,17 +257,22 @@ const typeColors = {
 
   map.data.addListener('click', event => {
     const feature = event.feature;
-    const name = feature.getProperty('lot_location') || feature.getProperty('LotNumber') || 'Parking Lot';
-    const capacity = feature.getProperty('capacity');
-    const occupancy = feature.getProperty('current_occupancy');
-    const types = feature.getProperty('Types') || [];
+    let name = feature.getProperty('lot_id');
+    if (name === undefined || name === null) name = feature.getProperty('LotNumber') || 'Parking Lot';
+    let capacity = feature.getProperty('capacity');
+    if (capacity === undefined || capacity === null) capacity = 'n/a';
+    let occupancy = feature.getProperty('current_occupancy');
+    if (occupancy === undefined || occupancy === null) occupancy = 'n/a';
+    let types = feature.getProperty('Types');
+    if (types === undefined || types === null) types = [];
+    if (!Array.isArray(types)) types = [types];
 
     const content = document.createElement('div');
     content.className = 'info-window-content';
     content.innerHTML = `<h3>${name}</h3>
                          <p>Type: ${types.join(', ')}</p>
-                         <p>Capacity: ${capacity ?? 'n/a'}</p>
-                         <p>Occupancy: ${occupancy ?? 'n/a'}</p>`;
+                         <p>Capacity: ${capacity}</p>
+                         <p>Occupancy: ${occupancy}</p>`;
     infoWindow.setContent(content);
     infoWindow.setPosition(event.latLng);
     infoWindow.open(map);
@@ -266,8 +284,9 @@ const typeColors = {
 }
 
 function computeCentroid(geometry) {
+  if (!geometry) return null;
   if (geometry.type === 'Polygon') {
-    const coords = geometry.coordinates[0]; // outer ring
+    const coords = geometry.coordinates && geometry.coordinates[0] ? geometry.coordinates[0] : []; // outer ring
     if (!coords || coords.length === 0) return null;
     let sumLat = 0, sumLng = 0;
     coords.forEach(([lng, lat]) => {
@@ -277,7 +296,7 @@ function computeCentroid(geometry) {
     return { lat: sumLat / coords.length, lng: sumLng / coords.length };
   } else if (geometry.type === 'MultiPolygon') {
     // use the first polygon's centroid
-    const firstPoly = geometry.coordinates[0];
+    const firstPoly = geometry.coordinates && geometry.coordinates[0] ? geometry.coordinates[0] : null;
     if (!firstPoly || !firstPoly[0]) return null;
     const coords = firstPoly[0];
     let sumLat = 0, sumLng = 0;

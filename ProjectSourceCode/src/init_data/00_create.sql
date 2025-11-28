@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS users (
 
 
 CREATE TABLE IF NOT EXISTS parking_lots (
-  lot_id SERIAL PRIMARY KEY NOT NULL,
+  lot_id INT UNIQUE PRIMARY KEY NOT NULL,
   capacity INT NOT NULL CHECK (capacity > 0),
   current_occupancy INT DEFAULT 0 CHECK (current_occupancy >= 0),
   geojson JSONB

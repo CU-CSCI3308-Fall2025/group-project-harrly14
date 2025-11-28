@@ -4,7 +4,7 @@ const router = express.Router();
 
 router.get('/', async (req, res) => {
   try {
-    const rows = await db.any('SELECT lot_id, lot_location, capacity, current_occupancy, geojson FROM parking_lots WHERE geojson IS NOT NULL');
+    const rows = await db.any('SELECT lot_id, capacity, current_occupancy, geojson FROM parking_lots WHERE geojson IS NOT NULL');
     const features = rows.map(r => {
       // if geojson is a feature, keep it; otherwise wrap geometry
       const feature = (r.geojson && r.geojson.type === 'Feature') ?
@@ -12,7 +12,6 @@ router.get('/', async (req, res) => {
         { type: 'Feature', geometry: r.geojson || null, properties: {} };
       feature.properties = {
         lot_id: r.lot_id,
-        lot_location: r.lot_location,
         capacity: r.capacity,
         current_occupancy: r.current_occupancy,
         lot_id: r.lot_id,
