@@ -9,8 +9,8 @@
     "dev": "nodemon src/index.js",
     "test": "mocha src/test",
     "testandrun": "npm run prestart && npm run test && npm start",
-    "seed_lots": "node src/init_data/seed_parking_lots.js",
-    "render-build": "npm install && node src/init_data/seed_parking_lots.js"
+    "seed_lots": "docker-compose exec -T db sh -c 'psql -U \"$POSTGRES_USER\" -d \"$POSTGRES_DB\" -f /docker-entrypoint-initdb.d/01_insert.sql'",
+    "render-build": "npm run prestart && npm run seed_lots"
   },
   "dependencies": {
     "express": "^4.18.2",
@@ -19,7 +19,8 @@
     "express-session": "^1.17.3",
     "dotenv": "^16.3.1",
     "bcryptjs": "^2.4.0",
-    "pg-promise": "^10.11.1"
+    "pg-promise": "^10.11.1",
+    "connect-pg-simple": "^8.0.0"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",

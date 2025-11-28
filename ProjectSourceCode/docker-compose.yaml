@@ -7,6 +7,11 @@ services:
     volumes:
       - group-project:/var/lib/postgresql/data
       - ./src/init_data:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB} -h localhost"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
   web:
     build:
       context: .
@@ -19,17 +24,16 @@ services:
       - HOST_GID=${GID:-1000}
     user: "${UID:-1000}:${GID:-1000}"
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     ports:
       - '3000:3000'
     volumes:
       - ./:/repository:delegated
       - /repository/node_modules 
-    # wait for db to init, then add seed data (then runs as normal)
+    # wait for db to init, then start app (use SQL init scripts instead of JS seed files)
     command: sh -c "
       npm run prestart &&
-      node src/init_data/wait_for_db.js &&
-      npm run seed_lots &&
       if [ \"$$RUN_TESTS\" = \"true\" ]; then npm test; fi &&
       exec node src/index.js"
 volumes:

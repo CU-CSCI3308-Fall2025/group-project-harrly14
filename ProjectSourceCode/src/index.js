@@ -3,6 +3,8 @@ const express = require('express');
 const path = require('path');
 const handlebars = require('express-handlebars');
 const session = require('express-session');
+const pg = require('pg');
+const PgSession = require('connect-pg-simple')(session);
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -42,10 +44,30 @@ if (!sessionSecret) {
   }
 }
 
+// create a PG pool for session store (uses same env vars as your db)
+const pgPool = new pg.Pool({
+  host: process.env.POSTGRES_HOST || 'db',
+  port: process.env.POSTGRES_PORT ? Number(process.env.POSTGRES_PORT) : 5432,
+  database: process.env.POSTGRES_DB,
+  user: process.env.POSTGRES_USER,
+  password: process.env.POSTGRES_PASSWORD,
+});
+
+// use connect-pg-simple store and configure cookie
 app.use(session({
+  store: new PgSession({
+    pool: pgPool,
+    tableName: 'session', // default is 'session'
+    createTableIfMissing: true
+  }),
   secret: sessionSecret,
   saveUninitialized: false,
   resave: false,
+  cookie: {
+    maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax'
+  }
 }));
 
 // expose req.session.user to all handlebars views

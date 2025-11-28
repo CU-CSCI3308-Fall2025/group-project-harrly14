@@ -24,9 +24,7 @@ async function initMap() {
   try {
     await drawLotsFromAPI('/parking-lots.js');
   } catch (e) {
-    console.warn('Failed to load polygons from server, falling back to Places', e);
-    const { Place } = await google.maps.importLibrary("places");
-    await findParking(Place, AdvancedMarkerElement);
+    console.warn('Failed to load polygons from server', e);
   }
 
   sessionBtn = document.querySelector('#parking-session .start-session-btn');
@@ -290,71 +288,6 @@ function computeCentroid(geometry) {
     return { lat: sumLat / coords.length, lng: sumLng / coords.length };
   }
   return null;
-}
-
-async function findParking(Place, AdvancedMarkerElement) {
-  const request = {
-    textQuery: "parking at University of Colorado Boulder",
-    fields: ["displayName", "location", "formattedAddress", "businessStatus"],
-    locationBias: map.getCenter(),
-  };
-
-  try {
-    const { places } = await Place.searchByText(request);
-
-    if (places.length) {
-      const bounds = new google.maps.LatLngBounds();
-      const placeList = document.getElementById("place-list");
-      placeList.innerHTML = ''; // Clear previous results
-
-      places.forEach((place) => {
-        const marker = new AdvancedMarkerElement({
-          map,
-          position: place.location,
-          title: place.displayName
-        });
-
-        markers.push(marker);
-
-        const listItem = document.createElement("div");
-        listItem.className = "place-item";
-        listItem.innerHTML = `
-          <h3>${place.displayName}</h3>
-          <p>${place.formattedAddress}</p>
-        `;
-        placeList.appendChild(listItem);
-
-        const openInfoWindow = () => {
-          infoWindow.close();
-
-          const content = document.createElement('div');
-          content.className = 'info-window-content';
-          content.innerHTML = `
-            <h3>${place.displayName}</h3>
-            <p><strong>Address:</strong> ${place.formattedAddress}</p>
-            <p><strong>Status:</strong> ${place.businessStatus}</p>
-          `;
-          infoWindow.setContent(content);
-
-          infoWindow.open({
-            anchor: marker,
-            map: map
-          });
-        };
-
-        marker.addListener("click", openInfoWindow);
-        listItem.addEventListener("click", openInfoWindow);
-
-        bounds.extend(place.location);
-      });
-
-      map.fitBounds(bounds);
-    } else {
-      console.log("No parking places found");
-    }
-  } catch (error) {
-    console.error("Error searching for parking:", error);
-  }
 }
 
 function saveEvent() {
