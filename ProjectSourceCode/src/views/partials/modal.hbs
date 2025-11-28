@@ -5,35 +5,32 @@
         <h5 class="modal-title">Make a Report:</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <div class="modal-body">
-            <form id = "data-form">
+<div class="modal-body">
+  <form id="data-form">
+    <div class="mb-3">
+      <label for="report-type" class="form-label">Report Type:</label>
+      <select id="report-type" class="form-select" required>
+        <option value="Parking Services" selected>Parking Services sighted</option>
+        <option value="Parking Lot Full">Parking Lot Full</option>
+      </select>
+    </div>
 
-            <div class="mb-3">
-                <label for="report-type" class="form-label">Report Type:</label>
-                <select id="report-type" class="form-select" required>
-                    <option value = "Parking Services" default>Parking Services</option>
-                    <option value = "work">Parking Lot Full</option>
+    <div class="mb-3">
+      <label for="lot-id" class="form-label">Parking Lot:</label>
+      <select id="lot-id" class="form-select" required>
+        <option value="" disabled selected>Select a Parking Lot</option>
+        {{#each parkingLots}}
+        <option value="{{this.lot_id}}">{{this.lot_id}}</option>
+        {{/each}}
+      </select>
+    </div>
 
-                </select>
-            </div>
-
-
-            <div class="mb-3">
-                <label for="lot-id" class="form-label">Parking Lot:</label>
-                <input type="text" class="form-control" id="event_name" placeholder="Parking Lot Number" required>
-            </div> 
-
-
-        
-
-
-            <div class="mb-3">
-                <label for="details" class="form-label">Enter Other Details:</label>
-                <input type="text" class="form-control" id="event_attendees" placeholder="Enter other details for you report">
-            </div>
-
-
-      </div>
+    <div class="mb-3">
+      <label for="details" class="form-label">Enter Other Details:</label>
+      <input type="text" class="form-control" id="event_attendees" placeholder="Enter other details for your report">
+    </div>
+  </form>
+</div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
         <button type="button" class="btn btn-primary" onclick="saveEvent()">Save Event</button>

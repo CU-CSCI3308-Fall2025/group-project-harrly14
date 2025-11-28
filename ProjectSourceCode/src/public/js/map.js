@@ -315,8 +315,15 @@ function saveEvent() {
     return;
   }
   
-  // TODO: Add report submission logic here
-  console.log('Save event called');
+  // Get the selected lot ID from the dropdown
+  const lotId = document.getElementById('lot-id').value;
+  if (!lotId) {
+    alert('Please select a parking lot.');
+    return;
+  }
+  
+  // TODO: Add report submission logic here (e.g., send to server with lotId, report type, etc.)
+  console.log('Selected Lot ID:', lotId);
   alert('Report submission not yet implemented');
 }
 
