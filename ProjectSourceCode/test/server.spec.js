@@ -4,11 +4,13 @@ const server = require('../src/index.js'); //TODO: Make sure the path to your in
 
 // ********************** Import Libraries ***********************************
 
-const chai = require('chai'); // Chai HTTP provides an interface for live integration testing of the API's.
+const chai = require('chai');
 const chaiHttp = require('chai-http');
 chai.should();
 chai.use(chaiHttp);
 const {assert, expect} = chai;
+
+const db = require('../src/config/database');
 
 // ********************** DEFAULT WELCOME TESTCASE ****************************
 
@@ -27,20 +29,52 @@ describe('Server!', () => {
   });
 });
 
-// *********************** TODO: WRITE 2 UNIT TESTCASES **************************
+// ********************** Test cases ****************************
 
-/*describe('Testing Add User API', () => {
+
+describe('Testing Add User API', () => {
+  //cleanup test cases
+  before(async function() {
+    try {
+      await db.none(`TRUNCATE users RESTART IDENTITY CASCADE`);
+      console.log('Test users cleaned up successfully');
+    } catch (err) {
+      console.log('Cleanup before tests:', err.message);
+    }
+  });
+  
+  //positive test case - check for redirect (302) since route redirects on success
   it('positive : /register', done => {
     chai
       .request(server)
       .post('/register')
-      .send({username: 'lllllkjhg', email: 'Johndoe@gmail.com', password: 'asdfghjkl'})
+      .send({username: 'testusername', email: 'Johndoe@gmail.com', password: 'asdfghjkl'})
+      .redirects(0) // Don't follow redirects
       .end((err, res) => {
-        expect(res).to.have.status(200);
-        expect(res.body.message).to.equals('Success');
+        expect(res).to.have.status(302);
+        expect(res).to.redirectTo(/\/login/);
         done();
       });
   });
-});*/
-
-// ********************************************************************************
+  
+  //negative test case - duplicate also redirects back to /register with error
+  it('negative: /register - duplicate username', done => {
+    chai
+      .request(server)
+      .post('/register')
+      .send({ username: 'duplicateuser', email: 'dup@example.com', password: 'password123' })
+      .redirects(0)
+      .end(() => {
+        chai
+          .request(server)
+          .post('/register')
+          .send({ username: 'duplicateuser', email: 'dup2@example.com', password: 'password123' })
+          .redirects(0)
+          .end((err, res) => {
+            expect(res).to.have.status(302);
+            expect(res).to.redirectTo(/\/register/);
+            done();
+          });
+      });
+  });
+});
