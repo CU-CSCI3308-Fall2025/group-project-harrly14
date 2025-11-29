@@ -66,7 +66,7 @@ if (!sessionSecret) {
 // use PostgreSQL-backed store
 app.use(session({
   store: new PgSession({
-    pool: db.$pool,
+    pgPromise: db,
     tableName: 'session'
   }),
   secret: sessionSecret,
