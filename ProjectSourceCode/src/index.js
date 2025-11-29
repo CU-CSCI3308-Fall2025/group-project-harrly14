@@ -3,8 +3,6 @@ const express = require('express');
 const path = require('path');
 const handlebars = require('express-handlebars');
 const session = require('express-session');
-const pg = require('pg');
-const PgSession = require('connect-pg-simple')(session);
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -33,6 +31,12 @@ app.use(express.urlencoded({ extended: true }));
 // Serve static files from /public
 app.use(express.static(path.join(__dirname, 'public')));
 
+// Add CSP headers to allow Google Maps
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; img-src 'self' data: https://*.googleapis.com; connect-src 'self' https://maps.googleapis.com;");
+  next();
+});
+
 // ------------------ Session ------------------
 let sessionSecret = process.env.SESSION_SECRET;
 if (!sessionSecret) {
@@ -44,22 +48,8 @@ if (!sessionSecret) {
   }
 }
 
-// create a PG pool for session store (uses same env vars as your db)
-const pgPool = new pg.Pool({
-  host: process.env.POSTGRES_HOST || 'db',
-  port: process.env.POSTGRES_PORT ? Number(process.env.POSTGRES_PORT) : 5432,
-  database: process.env.POSTGRES_DB,
-  user: process.env.POSTGRES_USER,
-  password: process.env.POSTGRES_PASSWORD,
-});
-
-// use connect-pg-simple store and configure cookie
+// use default in-memory store
 app.use(session({
-  store: new PgSession({
-    pool: pgPool,
-    tableName: 'session', // default is 'session'
-    createTableIfMissing: true
-  }),
   secret: sessionSecret,
   saveUninitialized: false,
   resave: false,
