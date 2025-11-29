@@ -160,7 +160,9 @@ router.post('/login', async (req, res) => {
     }
 
     req.session.user = { id: user.id, username: user.username, email: user.email };
+    console.log('Setting session user:', req.session.user);
     req.session.save((err) => {
+      console.log('Session save callback, err:', err);
       if (err) {
         console.error('Session save error:', err);
       }

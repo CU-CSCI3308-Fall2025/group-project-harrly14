@@ -3,6 +3,7 @@ const express = require('express');
 const path = require('path');
 const handlebars = require('express-handlebars');
 const session = require('express-session');
+const PgSession = require('connect-pg-simple')(session);
 
 const authRoutes = require('./routes/auth');
 const pageRoutes = require('./routes/pages');
@@ -33,7 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Add CSP headers to allow Google Maps
 app.use((req, res, next) => {
-  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; img-src 'self' data: https://*.googleapis.com; connect-src 'self' https://maps.googleapis.com;");
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline' https://maps.googleapis.com https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://fonts.googleapis.com; img-src 'self' data: https://*.googleapis.com; connect-src 'self' https://maps.googleapis.com https://cdn.jsdelivr.net; font-src https://fonts.gstatic.com;");
   next();
 });
 
@@ -48,8 +49,12 @@ if (!sessionSecret) {
   }
 }
 
-// use default in-memory store
+// use PostgreSQL-backed store
 app.use(session({
+  store: new PgSession({
+    pool: db.$pool,
+    tableName: 'session'
+  }),
   secret: sessionSecret,
   saveUninitialized: false,
   resave: false,
