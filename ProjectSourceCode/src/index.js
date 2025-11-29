@@ -11,6 +11,9 @@ const auth = require('./middleware/auth');
 
 const app = express();
 
+// Trust proxy for secure cookies on Render
+app.set('trust proxy', 1);
+
 // ------------------ Handlebars Setup ------------------
 const hbs = handlebars.create({
   extname: 'hbs',
