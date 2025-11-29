@@ -25,6 +25,20 @@ app.set('views', path.join(__dirname, 'views'));
 // ------------------ Database ------------------
 const db = require('./config/database');
 
+// Ensure session table exists
+db.none(`CREATE TABLE IF NOT EXISTS "session" (
+  "sid" varchar NOT NULL COLLATE "default",
+  "sess" json NOT NULL,
+  "expire" timestamp(6) NOT NULL,
+  PRIMARY KEY ("sid")
+)`).then(() => {
+  return db.none(`CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire")`);
+}).then(() => {
+  console.log('Session table and index ensured');
+}).catch(err => {
+  console.error('Error ensuring session table:', err);
+});
+
 // ------------------ Middleware ------------------
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
