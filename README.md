@@ -13,7 +13,7 @@ A real-time, user-reported map displaying available parking spots on campus. Use
 - **Frontend**: HTML, CSS, JavaScript, Handlebars
 - **Backend**: Node.js, Express.js
 - **Database**: PostgreSQL
-- **Authentication**: OAuth 2.0 (Google, Microsoft), bcrypt (password hashing)
+- **Authentication**: bcrypt (password hashing)
 - **Session Management**: express-session
 - **Containerization**: Docker, Docker Compose
 - **Map Integration**: Google Maps API
