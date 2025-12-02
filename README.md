@@ -82,7 +82,7 @@ Set the `RUN_TESTS` variable in your .env file to `true` to automatically run te
 
 The application is deployed and accessible at:
 
-(https://parking-app-okza.onrender.com/home)
+https://parking-app-okza.onrender.com/home
 
 Note that the database will expire and be deleted on December 20, 2025.
 
