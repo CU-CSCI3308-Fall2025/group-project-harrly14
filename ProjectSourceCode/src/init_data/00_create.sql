@@ -11,15 +11,6 @@ CREATE TABLE IF NOT EXISTS "session" (
 );
 CREATE INDEX IF NOT EXISTS "IDX_session_expire" ON "session" ("expire");
 
-CREATE TABLE IF NOT EXISTS users (
-  user_id SERIAL PRIMARY KEY NOT NULL,
-  username VARCHAR(100) UNIQUE NOT NULL,
-  email VARCHAR(100) UNIQUE NOT NULL,
-  password VARCHAR(100) NOT NULL,
-  current_session BOOLEAN DEFAULT FALSE
-);
-
-
 CREATE TABLE IF NOT EXISTS parking_lots (
   lot_id INT UNIQUE PRIMARY KEY NOT NULL,
   capacity INT NOT NULL CHECK (capacity > 0),
@@ -27,6 +18,14 @@ CREATE TABLE IF NOT EXISTS parking_lots (
   geojson JSONB
 );
 
+CREATE TABLE IF NOT EXISTS users (
+  user_id SERIAL PRIMARY KEY NOT NULL,
+  username VARCHAR(100) UNIQUE NOT NULL,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  password VARCHAR(100) NOT NULL,
+  current_session BOOLEAN DEFAULT FALSE,
+  current_lot INT REFERENCES parking_lots(lot_id) DEFAULT NULL
+);
 
 CREATE TABLE IF NOT EXISTS reports (
   report_id SERIAL PRIMARY KEY NOT NULL,
