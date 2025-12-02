@@ -309,7 +309,7 @@ function computeCentroid(geometry) {
   return null;
 }
 
-function saveEvent() {
+async function saveEvent() {
   if (!window.isLoggedIn) {
     window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
     return;
@@ -317,14 +317,31 @@ function saveEvent() {
   
   // Get the selected lot ID from the dropdown
   const lotId = document.getElementById('lot-id').value;
+  const reportType = document.getElementById('report-type').value;
+  const details = document.getElementById('event_attendees').value;
+  
   if (!lotId) {
     alert('Please select a parking lot.');
     return;
   }
   
   // TODO: Add report submission logic here (e.g., send to server with lotId, report type, etc.)
-  console.log('Selected Lot ID:', lotId);
-  alert('Report submission not yet implemented');
+  console.log('Selected Lot ID:', lotId); 
+
+  const obj = {ID: lotId, reportType: reportType, details: details};
+
+  try {
+      const res = await fetch('/api/report/create', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(obj)
+      });
+    } catch (err) {
+      console.error(err);
+      alert('Error submitting report');
+    }
+
+
 }
 
 window.onload = initMap;

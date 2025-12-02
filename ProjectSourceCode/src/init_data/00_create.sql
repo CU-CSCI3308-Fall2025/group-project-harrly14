@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS reports (
   user_id INT NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
   lot_num INT NOT NULL REFERENCES parking_lots(lot_id) ON DELETE CASCADE,
   report_type VARCHAR(100) NOT NULL,
+  details VARCHAR(100),
   time timestamptz NOT NULL
 );
 
