@@ -104,27 +104,22 @@ app.get('/welcome', (req, res) => {
   res.json({ status: 'success', message: 'Welcome!' });
 });
 
-app.get("/api/availability/:lotId", (req, res) => {
+app.get("/api/availability/:lotId", async (req, res) => {
   const lotId = req.params.lotId;
-
-  db.query(
-    "SELECT available_spots FROM parking_lots WHERE lot_id = $1",
-    [lotId],
-    (err, results) => {
-      if (err) {
-        console.error("DB error:", err);
-        return res.status(500).json({ error: "Database error" });
-      }
-
-      console.log("DB results:", results);
-
-      if (results.rows.length === 0) {
-        return res.json({ available: "Unknown" });
-      }
-
-      res.json({ available: results.rows[0].available_spots });
+  try {
+    const row = await db.oneOrNone(
+      'SELECT capacity, current_occupancy FROM parking_lots WHERE lot_id = $1',
+      [lotId]
+    );
+    if (!row) {
+      return res.status(404).json({ error: 'Lot not found' });
     }
-  );
+    const available = (row.capacity || 0) - (row.current_occupancy || 0);
+    return res.json({ available });
+  } catch (err) {
+    console.error('DB error:', err);
+    return res.status(500).json({ error: 'Database error' });
+  }
 });
 
 // Protected routes mounted after auth middleware
