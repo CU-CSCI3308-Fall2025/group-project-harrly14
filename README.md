@@ -7,6 +7,7 @@ A real-time, user-reported map displaying available parking spots on campus. Use
 - [Dolgormaa Sansarsaikhan](https://github.com/DolgormaaS)
 - [Carys Gardner](https://github.com/carysGard) 
 - [Xander  DuBois](https://github.com/aldu9080)
+- [Sully Harrer](https://github.com/harrly14)
 
 ## Tech Stack
 
@@ -17,13 +18,14 @@ A real-time, user-reported map displaying available parking spots on campus. Use
 - **Session Management**: express-session
 - **Containerization**: Docker, Docker Compose
 - **Map Integration**: Google Maps API
+- **Hosting**: Render
 
 ## Prerequisites
 
-Before running this application, ensure you have the following installed:
+Before running this application locally, ensure you have the following installed:
 
-- [Docker Desktop](https://www.docker.com/products/docker-desktop) (version 20.10 or higher)
-- [Docker Compose](https://docs.docker.com/compose/install/) (version 2.0 or higher)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop)
+- [Docker Compose](https://docs.docker.com/compose/install/)
 
 ## How to Run the Application Locally
 
@@ -41,6 +43,7 @@ Before running this application, ensure you have the following installed:
    Edit the `.env` file and fill in the required values:
    - Database credentials
    - Session secret (generate a random string)
+   - Google Maps API key
 
    By default, the `RUN_TESTS` variable in the .env example is false. If you want to run tests when starting the docker containers, change the `RUN_TESTS` variable in `.env` to `true`.
 
@@ -51,7 +54,7 @@ Before running this application, ensure you have the following installed:
 - `node_modules` is kept inside the container (anonymous volume) so host bind-mounts don't overwrite the image-installed dependencies.
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
 4. **Access the application**
@@ -63,23 +66,25 @@ docker-compose up --build
 
 5. **Stop the application**
 ```bash
-   docker-compose down
+   docker compose down
 ```
 
    To remove volumes (reset database):
 ```bash
-   docker-compose down -v
+   docker compose down -v
 ```
 
 ## How to Run Tests
 
-Tests will be implemented using a testing framework (to be determined).
+Set the `RUN_TESTS` variable in your .env file to `true` to automatically run tests using Mocha.
 
 ## Deployed Application
 
 The application is deployed and accessible at:
 
-[Render deployment URL TBD]
+(https://parking-app-okza.onrender.com/home)
+
+Note that the database will expire and be deleted on December 20, 2025.
 
 ---
 
@@ -93,7 +98,7 @@ The application is deployed and accessible at:
 
 ### Project Structure
 
-See the repository for detailed file organization. An initial directory structure can be found at `/ProjectSourceCode/docs/DIR_STRUCTURE.md`. Key directories:
+See the repository for detailed file organization. The directory structure can be found at `/ProjectSourceCode/docs/DIR_STRUCTURE.md`. Key directories:
 - `/ProjectSourceCode/src` - Application source code
 - `/ProjectSourceCode/src/public` - Static assets (CSS, JS, images)
 - `/ProjectSourceCode/src/views` - Handlebars templates
