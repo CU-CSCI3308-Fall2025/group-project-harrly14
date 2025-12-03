@@ -43,7 +43,7 @@ router.post('/start', isAuthenticated, async (req, res) => {
     res.json({ success: true, message: 'Parking session started!' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: 'Failed to start parking session' });
+    res.status(500).json({ error: 'Internal server error' });
   }
 });
 
@@ -59,12 +59,12 @@ router.post('/end', isAuthenticated, async (req, res) => {
       return res.status(400).json({ error: 'No active session' });
     }
 
-    const lotId = user.active_lot;
+    const newLotId = user.current_lot;
 
     await db.tx(async t => {
       await t.none(
         'UPDATE parking_lots SET current_occupancy = GREATEST(current_occupancy - 1, 0) WHERE lot_id=$1',
-        [lotId]
+        [newLotId]
       );
 
       await t.none(
