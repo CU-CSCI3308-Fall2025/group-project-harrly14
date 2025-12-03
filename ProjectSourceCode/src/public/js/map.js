@@ -61,43 +61,43 @@ async function initMap() {
       window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
       return;
     }
-    if (!currentSelectedLotId) {
+
+    const isEnding = sessionBtn.textContent.includes('End');
+
+    // Only require lot selection when starting a session
+    if (!isEnding && !currentSelectedLotId) {
       alert('Please select a parking lot first');
       return;
     }
 
-    const isEnding = sessionBtn.textContent.includes('End');
+    const endpoint = isEnding 
+      ? '/api/parking-sessions/end' 
+      : '/api/parking-sessions/start';
 
-    const endpoint = isEnding ? '/api/parking-sessions/end' : '/api/parking-sessions/start';
+    // Only include lotId when starting
+    const body = isEnding ? {} : { lotId: currentSelectedLotId };
+
     try {
       const res = await fetch(endpoint, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ lotId: currentSelectedLotId })
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
+
       if (!res.ok && data.error) {
         alert(data.error);
         return;
       }
 
-      // Toggle button text based on DB
-      sessionBtn.textContent = isEnding ? 'Start Parking Session Here' : 'End Parking Session';
+      // Toggle button text based on the new state
+      sessionBtn.textContent = isEnding 
+        ? 'Start Parking Session Here' 
+        : 'End Parking Session';
 
-      // Update map occupancy using DB value
-      const lotFeature = allFeatures.find(f => {
-        const pid = (f.properties !== undefined && f.properties !== null) ? f.properties.lot_id : undefined;
-        return pid === currentSelectedLotId;
-      });
-      if (lotFeature) {
-        const props = (lotFeature.properties !== undefined && lotFeature.properties !== null) ? lotFeature.properties : {};
-        props.current_occupancy = Math.max(
-          0,
-          (props.current_occupancy !== undefined && props.current_occupancy !== null ? props.current_occupancy : 0) + (isEnding ? -1 : 1)
-        );
-        drawFeatures(allFeatures);
-      }
+      // Refresh all lot data from the backend
+      await drawLotsFromAPI('/parking-lots.js');
 
       alert(data.message || (isEnding ? 'Parking session ended!' : 'Parking session started!'));
     } catch (err) {
