@@ -1,12 +1,24 @@
+<style>
+    body {
+    background-image: url('/images/CU_Campus.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    }
+</style>
+
 {{> message}}
 
-<h2>Account Details</h2>
+<div style="background-color:white; min-height:100vh; width:250px; padding:20px;">
+  <h2>Account Details</h2>
+  <br>
 
-<p><strong>Username:</strong> {{user.username}}</p>
-<p><strong>Email:</strong> {{user.email}}</p>
+  <p><strong>Username:</strong> {{user.username}}</p>
+  <p><strong>Email:</strong> {{user.email}}</p>
 
-<form action="/update" method="GET">
-  <button type="submit" class="btn btn-primary">
-    Update Account
-  </button>
-</form>
+  <form action="/update" method="GET">
+    <button type="submit" class="btn btn-primary">
+      Update Account
+    </button>
+  </form>
+</div>
