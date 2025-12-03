@@ -122,6 +122,24 @@ function applyFilters() {
   drawFeatures(filteredFeatures);
 }
 
+async function getReportList(LotId) {
+  const res = await fetch(`/api/report/update?lotId=${LotId}`);
+  const report = await res.json();
+
+  let allReports = "";
+
+  report.reports.forEach((r, index) => {
+    allReports += `Report #${index + 1}\n`;
+    allReports += `Reported at: ${r.time}\n`;
+    //allReports += `User: ${r.user_id}\n`;
+    allReports += `Type: ${r.report_type}\n <br>`;
+    allReports += `Details: ${r.details}\n <br>`;
+    allReports += `------------------- <br>`;
+  });
+
+  return allReports;
+}
+
 // fetch GeoJSON from the server and render polygons
 async function drawLotsFromAPI(url) {
   const res = await fetch(url);
@@ -185,6 +203,7 @@ const typeColors = {
     const props = (feature.properties !== undefined && feature.properties !== null) ? feature.properties : {};
     const name = (props.lot_id !== undefined && props.lot_id !== null) ? props.lot_id : (props.LotNumber !== undefined && props.LotNumber !== null ? props.LotNumber : 'Parking Lot');
     const lotNumber = (props.LotNumber !== undefined && props.LotNumber !== null) ? props.LotNumber : ((props.lot_id !== undefined && props.lot_id !== null) ? props.lot_id : '?');
+
     let types = props.Types;
     if (types === undefined || types === null) types = [];
     if (!Array.isArray(types)) types = [types];
@@ -204,13 +223,16 @@ const typeColors = {
 
     const centroid = computeCentroid(feature.geometry);
 
-    const openInfoWindowForLot = () => {
+    const openInfoWindowForLot = async () => {
+      const reports = await getReportList(name);
       const content = document.createElement('div');
       content.className = 'info-window-content';
       content.innerHTML = `<h3>${name}</h3>
                            <p>Type: ${types.join(', ')}</p>
                            <p>Capacity: ${ (props.capacity !== undefined && props.capacity !== null) ? props.capacity : 'n/a' }</p>
-                           <p>Occupancy: ${ (props.current_occupancy !== undefined && props.current_occupancy !== null) ? props.current_occupancy : 'n/a' }</p>`;
+                           <p>Occupancy: ${ (props.current_occupancy !== undefined && props.current_occupancy !== null) ? props.current_occupancy : 'n/a' }</p>
+                           </br>
+                           <p>Reports: <br> ${reports}</p>`;
       infoWindow.setContent(content);
 
       if (centroid) {
@@ -255,7 +277,7 @@ const typeColors = {
     }
   });
 
-  map.data.addListener('click', event => {
+  map.data.addListener('click', async event => {
     const feature = event.feature;
     let name = feature.getProperty('lot_id');
     if (name === undefined || name === null) name = feature.getProperty('LotNumber') || 'Parking Lot';
@@ -267,12 +289,18 @@ const typeColors = {
     if (types === undefined || types === null) types = [];
     if (!Array.isArray(types)) types = [types];
 
+    //add thing
+    let reports = await getReportList(name);
+
+
     const content = document.createElement('div');
     content.className = 'info-window-content';
     content.innerHTML = `<h3>${name}</h3>
                          <p>Type: ${types.join(', ')}</p>
                          <p>Capacity: ${capacity}</p>
-                         <p>Occupancy: ${occupancy}</p>`;
+                         <p>Occupancy: ${occupancy}</p>
+                         </br>
+                         <p>Reports: <br> ${reports}</p>`;
     infoWindow.setContent(content);
     infoWindow.setPosition(event.latLng);
     infoWindow.open(map);
@@ -326,7 +354,9 @@ async function saveEvent() {
   }
   
   // TODO: Add report submission logic here (e.g., send to server with lotId, report type, etc.)
-  console.log('Selected Lot ID:', lotId); 
+  //probably gonna delete this later and use html form instead
+
+  //console.log('Selected Lot ID:', lotId); 
 
   const obj = {ID: lotId, reportType: reportType, details: details};
 
@@ -336,11 +366,14 @@ async function saveEvent() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(obj)
       });
+
+      const result = await res.json();
+      alert(result.message);
+
     } catch (err) {
       console.error(err);
       alert('Error submitting report');
     }
-
 
 }
 
