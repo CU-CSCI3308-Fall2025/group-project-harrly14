@@ -22,6 +22,7 @@
 │   │   │   ├── 01_insert_parking_lots.sql
 │   │   │   ├── 02_insert_users.sql
 │   │   │   ├── 03_insert_reports.sql
+│   │   │   └── 04_start_sessions.sql
 │   │   ├── middleware/
 │   │   │   └── auth.js                     Used to protect routes
 │   │   ├── public/
