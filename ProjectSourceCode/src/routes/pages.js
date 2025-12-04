@@ -31,7 +31,13 @@ router.get('/home', async (req, res) => {
 });
 
 router.get('/account', isAuthenticated, (req, res) => {  // this is protected
-  res.render('pages/account', { user: req.session.user });
+  // surface session-based messages to the account view
+  const message = req.session.message;
+  const error = req.session.error;
+  delete req.session.message;
+  delete req.session.error;
+
+  res.render('pages/account', { user: req.session.user, message, error });
 });
 
 module.exports = router;

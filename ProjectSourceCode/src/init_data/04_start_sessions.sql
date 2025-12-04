@@ -42,7 +42,7 @@ UPDATE users
 SET current_session = TRUE, current_lot = 306
 WHERE username = 'demo_demo3' AND (current_session IS NOT TRUE);
 
--- demo_demo4 -> lot 436 (if present)
+-- demo_demo4 -> lot 436
 UPDATE parking_lots
 SET current_occupancy = current_occupancy + 1
 WHERE lot_id = 436

@@ -105,7 +105,12 @@ app.get('/welcome', (req, res) => {
 });
 
 app.get("/api/availability/:lotId", async (req, res) => {
-  const lotId = req.params.lotId;
+  const lotIdRaw = req.params.lotId;
+  const lotId = parseInt(lotIdRaw, 10);
+  if (Number.isNaN(lotId)) {
+    return res.status(400).json({ error: 'Invalid lot ID' });
+  }
+
   try {
     const row = await db.oneOrNone(
       'SELECT capacity, current_occupancy FROM parking_lots WHERE lot_id = $1',

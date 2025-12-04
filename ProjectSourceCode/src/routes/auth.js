@@ -5,8 +5,12 @@ const db = require('../config/database');
 const isAuthenticated = require('../middleware/auth');
 
 router.get('/update', isAuthenticated, (req, res) => {
-  const error = req.flash ? req.flash('error') : null;
-  res.render('pages/update', { user: req.session.user, error });
+  // use session-based messages instead of connect-flash
+  const message = req.session.message;
+  const error = req.session.error;
+  delete req.session.message;
+  delete req.session.error;
+  res.render('pages/update', { user: req.session.user, message, error });
 });
 
 router.post('/update', isAuthenticated, async (req, res) => {
@@ -14,7 +18,8 @@ router.post('/update', isAuthenticated, async (req, res) => {
     const { currentPassword } = req.body;
     const sessionUser = req.session.user;
     if (!sessionUser || !sessionUser.id) {
-      req.flash && req.flash('error', 'Not authenticated');
+      req.session.message = 'Not authenticated';
+      req.session.error = true;
       return res.redirect('/login');
     }
 
@@ -24,13 +29,15 @@ router.post('/update', isAuthenticated, async (req, res) => {
     );
 
     if (!dbUser) {
-      req.flash && req.flash('error', 'User not found');
+      req.session.message = 'User not found';
+      req.session.error = true;
       return res.redirect('/login');
     }
 
     const valid = await bcrypt.compare(currentPassword, dbUser.password);
     if (!valid) {
-      req.flash && req.flash('error', 'Incorrect password.');
+      req.session.message = 'Incorrect password.';
+      req.session.error = true;
       return res.redirect('/update');
     }
 
@@ -38,7 +45,8 @@ router.post('/update', isAuthenticated, async (req, res) => {
     return res.render('pages/update_account_form', { user: userForForm });
   } catch (err) {
     console.error('Error in /update:', err);
-    req.flash && req.flash('error', 'An error occurred. Try again.');
+    req.session.message = 'An error occurred. Try again.';
+    req.session.error = true;
     return res.redirect('/update');
   }
 });
@@ -47,7 +55,8 @@ router.post('/update_account_form', isAuthenticated, async (req, res) => {
   try {
     const userId = req.session.user && req.session.user.id;
     if (!userId) {
-      req.flash && req.flash('error', 'Not authenticated');
+      req.session.message = 'Not authenticated';
+      req.session.error = true;
       return res.redirect('/login');
     }
 
@@ -72,7 +81,8 @@ router.post('/update_account_form', isAuthenticated, async (req, res) => {
     }
 
     if (setParts.length === 0) {
-      req.flash && req.flash('error', 'No fields to update');
+      req.session.message = 'No fields to update';
+      req.session.error = true;
       return res.redirect('/account');
     }
 
@@ -85,11 +95,13 @@ router.post('/update_account_form', isAuthenticated, async (req, res) => {
     req.session.user.username = username || req.session.user.username;
     req.session.user.email = email || req.session.user.email;
 
-    req.flash && req.flash('success', 'Account updated successfully!');
+    req.session.message = 'Account updated successfully!';
+    req.session.error = false;
     return res.redirect('/account');
   } catch (err) {
     console.error('Error updating account:', err);
-    req.flash && req.flash('error', 'Could not update account. Try again.');
+    req.session.message = 'Could not update account. Try again.';
+    req.session.error = true;
     return res.redirect('/account');
   }
 });

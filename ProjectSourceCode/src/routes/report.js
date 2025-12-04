@@ -10,14 +10,9 @@ const max_per_user = 3; //maximum reports that one user can have
 async function cleanupReports() {
     console.log("cleaning database");
 
-    //const deleted1 = await db.query('SELECT * FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Services\'', [parking_services_lifespan]);
-    await db.none('DELETE FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Services\'', [parking_services_lifespan]);
-
-    /* remove comments to enable logging of cleaned up reports
-    console.log(`deleted:`);
-    console.log(deleted1);
-    console.log(deleted2);
-    */
+    // remove old Parking Services and Parking Lot Full reports
+    await db.none('DELETE FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = $2', [parking_services_lifespan, 'Parking Services']);
+    await db.none('DELETE FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = $2', [lot_full_lifespan, 'Parking Lot Full']);
 }
 
 router.post('/create', isAuthenticated, async (req, res) => {

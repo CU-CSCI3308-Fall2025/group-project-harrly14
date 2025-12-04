@@ -5,7 +5,8 @@ const isAuthenticated = require('../middleware/auth');
 
 router.get('/current-session', isAuthenticated, async (req, res) => {
   try {
-    const user = await db.one('SELECT current_session FROM users WHERE user_id=$1', [req.session.user.id]);
+    // include current_lot explicitly
+    const user = await db.one('SELECT current_session, current_lot FROM users WHERE user_id=$1', [req.session.user.id]);
     res.json({ current_session: user.current_session, current_lot: user.current_lot });
   } catch (err) {
     console.error(err);
