@@ -3,9 +3,12 @@ const router = express.Router();
 const db = require('../config/database');
 const isAuthenticated = require('../middleware/auth');
 
-router.get('/current-session', isAuthenticated, async (req, res) => {
+router.get('/current-session', async (req, res) => {
+  // Return JSON even for unauthenticated users (don't redirect)
+  if (!req.session || !req.session.user) {
+    return res.json({ current_session: false, current_lot: null });
+  }
   try {
-    // include current_lot explicitly
     const user = await db.one('SELECT current_session, current_lot FROM users WHERE user_id=$1', [req.session.user.id]);
     res.json({ current_session: user.current_session, current_lot: user.current_lot });
   } catch (err) {
