@@ -56,6 +56,17 @@ async function initMap() {
     console.error('Failed to fetch current session', err);
   }
 
+  // Wire up filter checkboxes to trigger filtering when changed
+  try {
+    document.querySelectorAll('.type-filter').forEach(cb => {
+      cb.addEventListener('change', () => {
+        try { applyFilters(); } catch (e) { console.error('applyFilters error', e); }
+      });
+    });
+  } catch (e) {
+    console.warn('No .type-filter elements found', e);
+  }
+
   sessionBtn.addEventListener('click', async () => {
     if (!window.isLoggedIn) {
       window.location.href = '/login?message=' + encodeURIComponent('Please log in first.') + '&error=true';
@@ -110,6 +121,12 @@ async function initMap() {
 function applyFilters() {
   const checked = Array.from(document.querySelectorAll('.type-filter:checked'));
   const selectedTypes = checked.map(cb => cb.value);
+
+  // If no filters are selected, show all features
+  if (!selectedTypes || selectedTypes.length === 0) {
+    drawFeatures(allFeatures);
+    return;
+  }
 
   const filteredFeatures = allFeatures.filter(feature => {
     const props = (feature.properties !== undefined && feature.properties !== null) ? feature.properties : {};
