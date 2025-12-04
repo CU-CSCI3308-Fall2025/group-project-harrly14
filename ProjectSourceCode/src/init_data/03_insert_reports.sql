@@ -17,11 +17,11 @@ WHERE NOT EXISTS (
 WITH u_bob AS (SELECT user_id FROM users WHERE username = 'bob' LIMIT 1),
      l_second AS (SELECT lot_id FROM parking_lots ORDER BY lot_id LIMIT 1 OFFSET 1)
 INSERT INTO reports (user_id, lot_num, report_type, time)
-SELECT u_bob.user_id, l_second.lot_id, 'Enforcement', NOW()
+SELECT u_bob.user_id, l_second.lot_id, 'Parking Services', NOW()
 FROM u_bob, l_second
 WHERE NOT EXISTS (
   SELECT 1 FROM reports r
   WHERE r.user_id = u_bob.user_id
     AND r.lot_num = l_second.lot_id
-    AND r.report_type = 'Enforcement'
+    AND r.report_type = 'Parking Services'
 );

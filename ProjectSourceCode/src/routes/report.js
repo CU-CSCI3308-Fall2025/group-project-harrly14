@@ -13,9 +13,6 @@ async function cleanupReports() {
     //const deleted1 = await db.query('SELECT * FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Services\'', [parking_services_lifespan]);
     await db.none('DELETE FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Services\'', [parking_services_lifespan]);
 
-    //const deleted2 = await db.query('SELECT * FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Lot Full\'', [lot_full_lifespan]);
-    await db.none('DELETE FROM reports WHERE (time < (NOW()-INTERVAL $1)) AND report_type = \'Parking Services\'', [lot_full_lifespan]);
-
     /* remove comments to enable logging of cleaned up reports
     console.log(`deleted:`);
     console.log(deleted1);
@@ -39,7 +36,7 @@ router.post('/create', isAuthenticated, async (req, res) => {
         const num_reports = db_result[0].num_reports;
 
         //delete oldest report if user has exceeded limit
-        if(num_reports > max_per_user) {
+        if(num_reports >= max_per_user) {
             await db.none('DELETE FROM reports WHERE time = (SELECT MIN(time) FROM reports WHERE user_id = $1);', [userId]);
             success_message = 'Report submitted - oldest report removed'
         }

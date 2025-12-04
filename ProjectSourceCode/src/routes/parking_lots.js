@@ -14,7 +14,6 @@ router.get('/', async (req, res) => {
         lot_id: r.lot_id,
         capacity: r.capacity,
         current_occupancy: r.current_occupancy,
-        lot_id: r.lot_id,
         ...(feature.properties || {})
       };
       return feature;

@@ -8,40 +8,42 @@ router.post('/start', isAuthenticated, async (req, res) => {
     const { lotId } = req.body;
     const userId = req.session.user.id;
 
-    // Get the lot details
-    const lot = await db.oneOrNone(
-      'SELECT capacity, current_occupancy FROM parking_lots WHERE lot_id = $1',
-      [lotId]
-    );
-
-    if (!lot) {
-      return res.status(404).json({ error: 'Parking lot not found' });
-    }
-
-    if (lot.current_occupancy >= lot.capacity) {
-      return res.status(400).json({ error: 'Parking lot is full' });
-    }
-
-    // Check if user already has a session
-    const user = await db.one('SELECT current_session FROM users WHERE user_id = $1', [userId]);
-    if (user.current_session) {
-      return res.status(400).json({ error: 'You already have an active parking session' });
-    }
-
-    // Start the session: increment occupancy and set user's session to true
+    // Move everything into a single transaction with row locking
     await db.tx(async t => {
+      const lot = await t.oneOrNone(
+        'SELECT capacity, current_occupancy FROM parking_lots WHERE lot_id = $1 FOR UPDATE',
+        [lotId]
+      );
+
+      if (!lot) {
+        throw { status: 404, error: 'Parking lot not found' };
+      }
+
+      if (lot.current_occupancy >= lot.capacity) {
+        throw { status: 400, error: 'Parking lot is full' };
+      }
+
+      const user = await t.one('SELECT current_session FROM users WHERE user_id = $1 FOR UPDATE', [userId]);
+      if (user.current_session) {
+        throw { status: 400, error: 'You already have an active parking session' };
+      }
+
       await t.none(
         'UPDATE parking_lots SET current_occupancy = current_occupancy + 1 WHERE lot_id = $1',
         [lotId]
       );
 
       await t.none(
-        'UPDATE users SET current_session = TRUE, current_lot = $1 WHERE user_id = $2', [lotId, userId]
+        'UPDATE users SET current_session = TRUE, current_lot = $1 WHERE user_id = $2',
+        [lotId, userId]
       );
     });
 
     res.json({ success: true, message: 'Parking session started!' });
   } catch (err) {
+    if (err.status) {
+      return res.status(err.status).json({ error: err.error });
+    }
     console.error(err);
     res.status(500).json({ error: 'Internal server error' });
   }
