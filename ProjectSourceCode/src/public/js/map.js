@@ -133,6 +133,13 @@ function applyFilters() {
     let types = props.Types;
     if (types === undefined || types === null) types = [];
     if (!Array.isArray(types)) types = [types];
+    
+    // If the feature has no types defined, include it when any filter is selected
+    // (or you could choose to always show typeless lots)
+    if (types.length === 0) {
+      return true; // Show lots without type info regardless of filter
+    }
+    
     return selectedTypes.some(selectedType => types.includes(selectedType));
   });
 
@@ -172,6 +179,22 @@ async function drawLotsFromAPI(url) {
 }
 
 function drawFeatures(features) {
+  // Sort features by lot_id / name
+  features.sort((a, b) => {
+    const pA = a.properties || {};
+    const pB = b.properties || {};
+    const nameA = pA.lot_id || pA.LotNumber || '';
+    const nameB = pB.lot_id || pB.LotNumber || '';
+    
+    // numeric sort if possible
+    const numA = parseInt(nameA, 10);
+    const numB = parseInt(nameB, 10);
+    if (!isNaN(numA) && !isNaN(numB)) {
+      return numA - numB;
+    }
+    return String(nameA).localeCompare(String(nameB));
+  });
+
   // Clear existing
   map.data.forEach(f => map.data.remove(f));
   labelMarkers.forEach(m => m.setMap(null));

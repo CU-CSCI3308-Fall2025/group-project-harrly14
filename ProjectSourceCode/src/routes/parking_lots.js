@@ -10,11 +10,13 @@ router.get('/', async (req, res) => {
       const feature = (r.geojson && r.geojson.type === 'Feature') ?
         r.geojson :
         { type: 'Feature', geometry: r.geojson || null, properties: {} };
+      
+      // Merge DB values with existing GeoJSON properties (DB values take precedence for occupancy)
       feature.properties = {
+        ...(feature.properties || {}),  // spread existing properties FIRST (includes Types, LotNumber)
         lot_id: r.lot_id,
         capacity: r.capacity,
-        current_occupancy: r.current_occupancy,
-        ...(feature.properties || {})
+        current_occupancy: r.current_occupancy  // override with live DB value
       };
       return feature;
     });
