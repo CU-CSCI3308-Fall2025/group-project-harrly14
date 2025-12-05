@@ -27,6 +27,17 @@ Before running this application locally, ensure you have the following installed
 - [Docker Desktop](https://www.docker.com/products/docker-desktop)
 - [Docker Compose](https://docs.docker.com/compose/install/)
 
+## Directory structure
+
+See the [Directory Structure documentation](./ProjectSourceCode/docs/DIR_STRUCTURE.md) for detailed file organization.
+
+**Key directories:**
+- `/ProjectSourceCode/src` - Application source code
+- `/ProjectSourceCode/src/public` - Static assets (CSS, JS, images)
+- `/ProjectSourceCode/src/views` - Handlebars templates
+- `/ProjectSourceCode/src/routes` - API and page routes
+- `/ProjectSourceCode/src/init_data` - Database initialization scripts
+
 ## How to Run the Application Locally
 
 1. **Clone the repository**
@@ -47,7 +58,7 @@ Before running this application locally, ensure you have the following installed
 
    By default, the `RUN_TESTS` variable in the .env example is false. If you want to run tests when starting the docker containers, change the `RUN_TESTS` variable in `.env` to `true`.
 
-3. **Build the image and start the app (recommended)**
+3. **Build the image and start the app**
 
 - Dependencies are installed at image build time (fast, consistent startups).
 - The container runs non-root by default using the host's UID/GID (no manual chown required).
@@ -95,12 +106,3 @@ Note that the database will expire and be deleted on December 20, 2025.
 - If port 3000 is already in use, modify the port mapping in `docker-compose.yaml`
 - If database connection fails, ensure Docker containers are running: `docker ps`
 - For database issues, check logs: `docker-compose logs db`
-
-### Project Structure
-
-See the repository for detailed file organization. The directory structure can be found at `/ProjectSourceCode/docs/DIR_STRUCTURE.md`. Key directories:
-- `/ProjectSourceCode/src` - Application source code
-- `/ProjectSourceCode/src/public` - Static assets (CSS, JS, images)
-- `/ProjectSourceCode/src/views` - Handlebars templates
-- `/ProjectSourceCode/src/routes` - API and page routes
-- `/ProjectSourceCode/src/init_data` - Database initialization scripts
